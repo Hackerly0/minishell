@@ -3,3 +3,7 @@
 a.out
 minishell
 .DS_Store
+*.swp           # Ignore vim swap files
+*.log           # Ignore any generated logs
+*.dSYM/         # Ignore debug symbol folders (macOS)
+*.tmp           # Ignore temporary files
