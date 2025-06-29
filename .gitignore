@@ -1,0 +1,5 @@
+*.o
+*.out
+a.out
+minishell
+.DS_Store
