@@ -192,8 +192,10 @@ static void close_pipes(int pipes[2][2], int num)
 {
     for (int i = 0; i < num - 1; i++) {
         int idx = i % 2;
-        if (pipes[idx][0] >= 0) close(pipes[idx][0]);
-        if (pipes[idx][1] >= 0) close(pipes[idx][1]);
+        if (pipes[idx][0] >= 0)
+            close(pipes[idx][0]);
+        if (pipes[idx][1] >= 0)
+            close(pipes[idx][1]);
         pipes[idx][0] = pipes[idx][1] = -1;
     }
 }
@@ -245,8 +247,10 @@ void executor(char **cmds, char **envp)
             spawn_child(cmds[i], i, pipes, num, envp);
         // Parent closes ends no longer needed
         if (i > 0) {
-            if (pipes[(i - 1) % 2][0] >= 0) close(pipes[(i - 1) % 2][0]);
-            if (pipes[(i - 1) % 2][1] >= 0) close(pipes[(i - 1) % 2][1]);
+            if (pipes[(i - 1) % 2][0] >= 0)
+                close(pipes[(i - 1) % 2][0]);
+            if (pipes[(i - 1) % 2][1] >= 0)
+                close(pipes[(i - 1) % 2][1]);
         }
     }
     // After loop, no pipes remain open
