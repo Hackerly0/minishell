@@ -35,6 +35,13 @@ typedef struct s_cmd
     int      n_redirs;    // count
 }               t_cmd;
 
+typedef struct s_command
+{
+    char    **argv;       // NULL-terminated array of strings for execve()
+    int      infile_fd;   // already-opened FD (or STDIN_FILENO)
+    int      outfile_fd;  // already-opened FD (or STDOUT_FILENO)
+}   t_command;
+
 t_cmd   *parse_commands(t_token *tokens, int *out_ncmds);
 void     exec_commands(t_cmd *cmds, int ncmds, char **envp);
 void     free_commands(t_cmd *cmds, int ncmds);
