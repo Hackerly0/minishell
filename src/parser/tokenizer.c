@@ -6,7 +6,7 @@
 /*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 21:50:01 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/07/19 19:15:14 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/07/19 19:26:52 by oalhoora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -513,50 +513,4 @@ int	quotes_validation(char *line)
 		i++;
 	}
 	return (1);
-}
-
-int	main(int argc, char **argv, char **envp)
-{
-	char	*line;
-	t_token	*tokens;
-	int		flag;
-
-	argc = 0;
-	argv = (char **)argv;
-	line = readline("minishell$ ");
-	while (line)
-	{
-		if (!quotes_validation(line))
-		{
-			free(line);
-			return (1);
-		}
-		if (*line)
-			add_history(line);
-		tokens = tokenize(line);
-		if (!tokens)
-			fprintf(stderr, "tokenize error\n");
-		else
-		{
-			print_tokens(tokens);
-			printf("\n");
-			flag = parser(&tokens, envp);
-			print_tokens(tokens);
-			if (flag == 0)
-				printf("syntax: wrong redirection\n");
-			else if (flag == 1)
-				printf("success!\n");
-			else if (flag == 3)
-				printf("No file\n");
-			else if (flag == 4)
-				printf("syntax: redirection without file\n");
-			else if (flag == 5)
-				printf("syntax: pipe in the start of the line\n");
-			free_tokens(&tokens);
-		}
-		free(line);
-		line = readline("minishell$ ");
-	}
-	free(line);
-	return (0);
 }

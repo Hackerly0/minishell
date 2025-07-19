@@ -6,7 +6,7 @@
 /*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 19:10:00 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/07/19 19:15:23 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/07/19 20:25:32 by oalhoora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ char	*expand_string(const char *s)
 	char	*out;
 	int		o_len;
 
+	o_len = 0;
 	out = malloc(1);
 	out[0] = '\0';
 
@@ -37,15 +38,15 @@ char	*expand_string(const char *s)
 			}
 			else
 			{
-				while (isalnum((unsigned char)s[i]) || s[i] == '_')
+				while (ft_isalnum((unsigned char)s[i]) || s[i] == '_')
 					name[n++] = s[i++];
 			}
 			name[n] = '\0';
 			char *val = getenv(name);
 			if (!val) val = "";
-			int vlen = strlen(val);
+			int vlen = ft_strlen(val);
 			out = realloc(out, o_len + vlen + 1);
-			memcpy(out + o_len, val, vlen);
+			ft_memcpy(out + o_len, val, vlen);
 			o_len += vlen;
 			out[o_len] = '\0';
 		}
