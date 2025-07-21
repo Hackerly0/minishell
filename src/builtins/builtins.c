@@ -16,30 +16,39 @@
 
 int builtin_echo(char **argv)
 {
-	int newline = 1;
-	int i = 1;
-	
-	// Check for -n flag
-	if (argv[1] && strcmp(argv[1], "-n") == 0)
-	{
-		newline = 0;
-		i = 2;
-	}
-	
-	// Print arguments
-	while (argv[i])
-	{
-		printf("%s", argv[i]);
-		if (argv[i + 1])
-			printf(" ");
-		i++;
-	}
-	
-	if (newline)
-		printf("\n");
-	
-	return 0;
+    int newline = 1;
+    int i = 1;
+
+    // ——— Consume all “-n”, “-nn”, “-nnnnn”… flags ———
+    while (argv[i] && argv[i][0] == '-' && argv[i][1] == 'n')
+    {
+        // check that every character after the dash is 'n'
+        int j = 1;
+        while (argv[i][j] == 'n')
+            j++;
+        // if we hit something that isn’t 'n', stop flag parsing
+        if (argv[i][j] != '\0')
+            break;
+
+        newline = 0;
+        i++;
+    }
+
+    // ——— Print the rest of the arguments ———
+    for (; argv[i]; i++)
+    {
+        printf("%s", argv[i]);
+        if (argv[i + 1])
+            printf(" ");
+    }
+
+    // ——— Trailing newline if no -n flag seen ———
+    if (newline)
+        printf("\n");
+
+    return 0;
 }
+
 
 // ─── Change Directory Command ───────────────────────────────────────────────
 

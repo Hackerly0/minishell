@@ -24,7 +24,8 @@ SRCS = src/main.c \
 	   src/parser/expander.c \
        src/executor/executor.c \
        src/builtins/builtins.c \
-	   src/builtins/errors.c
+	   src/builtins/errors.c \
+	   src/utils/helper_functions.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -105,9 +105,9 @@ int		ft_strcmp(char *s1, char *s2);
 t_token	*tokenize(char *line);
 void	free_tokens(t_token **head);
 int		parser(t_token **tokens, char **envp);
-int	quotes_validation(char *line);
+int		quotes_validation(char *line);
 void	print_tokens(t_token *tokens);
-void expand_variables(t_token *tokens);
+void	expand_variables(t_token *tokens);
 
 // ─── Executor Functions ─────────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ int		builtin_env(char **argv, char **envp);
 int		builtin_exit(char **argv);
 int		builtin_export(char **argv, char ***envp);
 int		builtin_unset(char **argv);
-int execute_builtin(char **argv, char **envp);
+int		execute_builtin(char **argv, char **envp);
 
 // ─── Utility Functions ──────────────────────────────────────────────────────
 
@@ -131,8 +131,8 @@ char	*find_command_path(char *cmd, char **envp);
 int		is_builtin(char *cmd);
 
 
-void error_cmd(char *cmd, char *msg);
-void error_str(char *msg);
-void error_file(char *filename, char *msg);
+void	error_cmd(char *cmd, char *msg);
+void	error_str(char *msg);
+void	error_file(char *filename, char *msg);
 
 #endif
