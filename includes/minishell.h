@@ -23,6 +23,9 @@
 # include <errno.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+
 # define Q_DQUOT 1
 # define Q_SQUOT 2
 
@@ -134,5 +137,18 @@ int		is_builtin(char *cmd);
 void	error_cmd(char *cmd, char *msg);
 void	error_str(char *msg);
 void	error_file(char *filename, char *msg);
+
+void		error_cmd(char *cmd, char *msg);
+void		error_str(char *msg);
+void		error_file(char *filename, char *msg);
+t_cmd		*create_cmd(void);
+void		free_cmd(t_cmd *cmd);
+void		free_cmd_list(t_cmd *cmd_list);
+void		free_array(char **arr);
+t_cmd		*parse_tokens_to_commands(t_token *tokens);
+int			setup_input_redirection(t_cmd *cmd);
+int			setup_output_redirection(t_cmd *cmd);
+void		signal_handler(int sig);
+void		setup_signals(void);
 
 #endif

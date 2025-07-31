@@ -1,6 +1,0 @@
-apple foo bar
-banana
-foo123
-baz foo
-qux
-Foo   # note grep is case‐sensitive by default, so this won’t match

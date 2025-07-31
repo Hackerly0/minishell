@@ -14,7 +14,7 @@ NAME = minishell
 
 # Compiler and flags
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g3
+CFLAGS = -Wall -Wextra -Werror
 LDFLAGS = -lreadline
 
 # Source files
@@ -23,6 +23,10 @@ SRCS = src/main.c \
 	   src/parser/parser.c \
 	   src/parser/expander.c \
        src/executor/executor.c \
+	   src/executor/cmd_parser.c \
+	   src/executor/path_utils.c \
+	   src/executor/redir_utils.c \
+	   src/executor/signals.c \
        src/builtins/builtins.c \
 	   src/builtins/errors.c \
 	   src/utils/helper_functions.c

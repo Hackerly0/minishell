@@ -18,192 +18,21 @@
 #include <errno.h>
 
 // Error helper
-static void	error_exit(const char *msg)
+void	error_exit(const char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
 // Free a NULL-terminated array of strings
-static void	free_array(char **arr)
-{
-	if (!arr) return;
-	for (int i = 0; arr[i]; i++)
-		free(arr[i]);
-	free(arr);
-}
 
 // Create and initialize a t_cmd node
-static t_cmd	*create_cmd(void)
-{
-	t_cmd *cmd = malloc(sizeof(t_cmd));
-	if (!cmd) return NULL;
-	cmd->argv = malloc(sizeof(char *) * 256);
-	cmd->input_file = NULL;
-	cmd->output_file = NULL;
-	cmd->heredoc_delim = NULL;
-	cmd->append_mode = 0;
-	cmd->next = NULL;
-	return cmd;
-}
 
-// Free one t_cmd node
-static void	free_cmd(t_cmd *cmd)
-{
-	if (!cmd) return;
-	free_array(cmd->argv);
-	free(cmd->input_file);
-	free(cmd->output_file);
-	free(cmd->heredoc_delim);
-	free(cmd);
-}
-
-// Free a whole pipeline
-static void	free_cmd_list(t_cmd *cmd_list)
-{
-	while (cmd_list)
-	{
-		t_cmd *next = cmd_list->next;
-		free_cmd(cmd_list);
-		cmd_list = next;
-	}
-}
-
-// Turn a token list into a linked list of t_cmd
-static t_cmd	*parse_tokens_to_commands(t_token *tokens)
-{
-	t_cmd *cmd_list = NULL, *current = NULL, *last = NULL;
-	int argc = 0;
-
-	while (tokens)
-	{
-		if (tokens->type == T_PIPE)
-		{
-			if (current)
-			{
-				current->argv[argc] = NULL;
-				if (!cmd_list) cmd_list = current;
-				else last->next = current;
-				last = current;
-			}
-			current = create_cmd();
-			argc = 0;
-		}
-		else if (tokens->type == T_COMMAND)
-		{
-			// Handle T_COMMAND tokens - path is already resolved in value
-            printf("DEBUG: Command token value: '%s'\n", tokens->value);
-			if (!current) current = create_cmd();
-			current->argv[argc++] = strdup(tokens->value);
-		}
-		else if (tokens->type == T_WORD || tokens->type == T_ARGUMENT || tokens->type == T_OPTION)
-		{
-			// Handle other command components
-			if (!current) current = create_cmd();
-			current->argv[argc++] = strdup(tokens->value);
-		}
-		else if (tokens->type == T_IN_REDIR)
-		{
-			if (!current) current = create_cmd();
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-				current->input_file = strdup(tokens->value);
-		}
-		else if (tokens->type == T_OUT_REDIR || tokens->type == T_DOUT_REDIR)
-		{
-			if (!current) current = create_cmd();
-			int append = (tokens->type == T_DOUT_REDIR);
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-			{
-				current->output_file = strdup(tokens->value);
-				current->append_mode = append;
-			}
-		}
-		else if (tokens->type == T_HEREDOC)
-		{
-			if (!current) current = create_cmd();
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-				current->heredoc_delim = strdup(tokens->value);
-		}
-		tokens = tokens->next;
-	}
-
-	if (current)
-	{
-		current->argv[argc] = NULL;
-		if (!cmd_list) cmd_list = current;
-		else last->next = current;
-	}
-	return cmd_list;
-}
 
 // Set up input redirection or heredoc in a child
-static int	setup_input_redirection(t_cmd *cmd)
-{
-	if (cmd->heredoc_delim)
-	{
-		int pipefd[2];
-		if (pipe(pipefd) == -1)
-			return -1;
-		if (fork() == 0)
-		{
-			close(pipefd[0]);
-			char *line;
-			while ((line = readline("> ")))
-			{
-				if (strcmp(line, cmd->heredoc_delim) == 0)
-				{
-					free(line);
-					break;
-				}
-				write(pipefd[1], line, strlen(line));
-				write(pipefd[1], "\n", 1);
-				free(line);
-			}
-			close(pipefd[1]);
-			exit(0);
-		}
-		close(pipefd[1]);
-		wait(NULL);
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-	}
-	else if (cmd->input_file)
-	{
-		int fd = open(cmd->input_file, O_RDONLY);
-		if (fd == -1)
-		{
-			perror(cmd->input_file);
-			return -1;
-		}
-		dup2(fd, STDIN_FILENO);
-		close(fd);
-	}
-	return 0;
-}
-
-// Set up output redirection
-static int	setup_output_redirection(t_cmd *cmd)
-{
-	if (cmd->output_file)
-	{
-		int flags = O_WRONLY | O_CREAT | (cmd->append_mode ? O_APPEND : O_TRUNC);
-		int fd = open(cmd->output_file, flags, 0644);
-		if (fd == -1)
-		{
-			perror(cmd->output_file);
-			return -1;
-		}
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
-	}
-	return 0;
-}
 
 // Count how many commands are in the pipeline
-static int	count_commands(t_cmd *cmd_list)
+int	count_commands(t_cmd *cmd_list)
 {
 	int count = 0;
 	while (cmd_list)
@@ -215,7 +44,7 @@ static int	count_commands(t_cmd *cmd_list)
 }
 
 // Check if a command is a builtin by checking the original command name
-static int	is_builtin_cmd(char *cmd_path)
+int	is_builtin_cmd(char *cmd_path)
 {
 	char *cmd_name;
 	
@@ -230,7 +59,7 @@ static int	is_builtin_cmd(char *cmd_path)
 }
 
 //Execute a single command - with fallback PATH resolution
-static int	execute_single_command(t_cmd *cmd, char **envp)
+int	execute_single_command(t_cmd *cmd, char **envp)
 {
 	if (!cmd->argv[0]) return 0;
 	
@@ -377,69 +206,209 @@ static int single_command_handler(t_cmd *cmd_list, char **envp)
 }
 
 // Execute one or more commands connected by pipes
-static int	execute_pipeline(t_cmd *cmd_list, char **envp)
+// static int	execute_pipeline(t_cmd *cmd_list, char **envp)
+// {
+// 	int n = count_commands(cmd_list);
+
+// 	// Single command (builtin in parent or fork+exec)
+// 	if (n == 1)
+// 		return single_command_handler(cmd_list, envp);
+
+// 	// Multiple commands -> pipelines
+// 	int **pipes = malloc(sizeof(int *) * (n - 1));
+// 	for (int i = 0; i < n - 1; i++)
+// 	{
+// 		pipes[i] = malloc(sizeof(int) * 2);
+// 		if (pipe(pipes[i]) == -1)
+// 			error_exit("pipe");
+// 	}
+// 	pid_t *pids = malloc(sizeof(pid_t) * n);
+// 	t_cmd *cur = cmd_list;
+
+// 	for (int i = 0; i < n; i++, cur = cur->next)
+// 	{
+// 		if ((pids[i] = fork()) == 0)
+// 		{
+// 			// Input
+// 			if (i > 0)
+// 				dup2(pipes[i - 1][0], STDIN_FILENO);
+// 			else
+// 				setup_input_redirection(cur);
+
+// 			// Output
+// 			if (i < n - 1)
+// 				dup2(pipes[i][1], STDOUT_FILENO);
+// 			else
+// 				setup_output_redirection(cur);
+
+// 			// Close all pipes
+// 			for (int j = 0; j < n - 1; j++)
+// 			{
+// 				close(pipes[j][0]);
+// 				close(pipes[j][1]);
+// 			}
+// 			exit(execute_single_command(cur, envp));
+// 		}
+// 	}
+
+// 	// Parent closes pipes, waits
+// 	for (int i = 0; i < n - 1; i++)
+// 	{
+// 		close(pipes[i][0]);
+// 		close(pipes[i][1]);
+// 		free(pipes[i]);
+// 	}
+// 	free(pipes);
+
+// 	int status, last = 0;
+// 	for (int i = 0; i < n; i++)
+// 	{
+// 		waitpid(pids[i], &status, 0);
+// 		if (i == n - 1) last = WEXITSTATUS(status);
+// 	}
+// 	free(pids);
+// 	return last;
+// }
+
+#include "../../includes/minishell.h"
+
+static int create_heredoc_pipe(const char *delim, int *out_fd)
 {
-	int n = count_commands(cmd_list);
+    int  pipefd[2];
+    pid_t pid;
 
-	// Single command (builtin in parent or fork+exec)
-	if (n == 1)
-		return single_command_handler(cmd_list, envp);
-
-	// Multiple commands -> pipelines
-	int **pipes = malloc(sizeof(int *) * (n - 1));
-	for (int i = 0; i < n - 1; i++)
-	{
-		pipes[i] = malloc(sizeof(int) * 2);
-		if (pipe(pipes[i]) == -1)
-			error_exit("pipe");
-	}
-	pid_t *pids = malloc(sizeof(pid_t) * n);
-	t_cmd *cur = cmd_list;
-
-	for (int i = 0; i < n; i++, cur = cur->next)
-	{
-		if ((pids[i] = fork()) == 0)
-		{
-			// Input
-			if (i > 0)
-				dup2(pipes[i - 1][0], STDIN_FILENO);
-			else
-				setup_input_redirection(cur);
-
-			// Output
-			if (i < n - 1)
-				dup2(pipes[i][1], STDOUT_FILENO);
-			else
-				setup_output_redirection(cur);
-
-			// Close all pipes
-			for (int j = 0; j < n - 1; j++)
-			{
-				close(pipes[j][0]);
-				close(pipes[j][1]);
-			}
-			exit(execute_single_command(cur, envp));
-		}
-	}
-
-	// Parent closes pipes, waits
-	for (int i = 0; i < n - 1; i++)
-	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		free(pipes[i]);
-	}
-	free(pipes);
-
-	int status, last = 0;
-	for (int i = 0; i < n; i++)
-	{
-		waitpid(pids[i], &status, 0);
-		if (i == n - 1) last = WEXITSTATUS(status);
-	}
-	free(pids);
-	return last;
+    if (pipe(pipefd) == -1)
+        return -1;
+    pid = fork();
+    if (pid < 0)
+        return -1;
+    if (pid == 0)
+    {
+        close(pipefd[0]);
+        while (1)
+        {
+            char *line = readline("> ");
+            if (!line || !strcmp(line, delim))
+            {
+                free(line);
+                break;
+            }
+            write(pipefd[1], line, strlen(line));
+            write(pipefd[1], "\n", 1);
+            free(line);
+        }
+        close(pipefd[1]);
+        exit(EXIT_SUCCESS);
+    }
+    close(pipefd[1]);
+    waitpid(pid, NULL, 0);
+    *out_fd = pipefd[0];
+    return 0;
 }
+
+static int execute_pipeline(t_cmd *cmd_list, char **envp)
+{
+    int   n = count_commands(cmd_list);
+    int  *heredoc_fds = malloc(sizeof(int) * n);
+    t_cmd *c = cmd_list;
+
+    // 1) Pre-read here-docs into pipes
+    for (int i = 0; i < n; i++, c = c->next)
+    {
+        if (c->heredoc_delim)
+        {
+            if (create_heredoc_pipe(c->heredoc_delim, &heredoc_fds[i]) < 0)
+                heredoc_fds[i] = -1;
+        }
+        else
+            heredoc_fds[i] = -1;
+    }
+
+    // Single command?
+    if (n == 1)
+    {
+        int status = single_command_handler(cmd_list, envp);
+        free(heredoc_fds);
+        return status;
+    }
+
+    // 2) Create pipes
+    int **pipes = malloc(sizeof(int *) * (n - 1));
+    for (int i = 0; i < n - 1; i++)
+    {
+        pipes[i] = malloc(sizeof(int) * 2);
+        if (pipe(pipes[i]) == -1)
+            error_exit("pipe");
+    }
+
+    // 3) Fork each stage
+    pid_t *pids = malloc(sizeof(pid_t) * n);
+    t_cmd *cur  = cmd_list;
+    for (int i = 0; i < n; i++, cur = cur->next)
+    {
+        if ((pids[i] = fork()) == 0)
+        {
+            // stdin: heredoc?
+            if (heredoc_fds[i] >= 0)
+            {
+                dup2(heredoc_fds[i], STDIN_FILENO);
+                close(heredoc_fds[i]);
+            }
+            else if (cur->input_file)
+            {
+                if (setup_input_redirection(cur) < 0)
+                    exit(1);
+            }
+            else if (i > 0)
+            {
+                dup2(pipes[i - 1][0], STDIN_FILENO);
+            }
+
+            // stdout
+            if (cur->output_file)
+            {
+                if (setup_output_redirection(cur) < 0)
+                    exit(1);
+            }
+            else if (i < n - 1)
+            {
+                dup2(pipes[i][1], STDOUT_FILENO);
+            }
+
+            // close all fds
+            for (int j = 0; j < n - 1; j++)
+            {
+                close(pipes[j][0]);
+                close(pipes[j][1]);
+            }
+            exit(execute_single_command(cur, envp));
+        }
+    }
+
+    // 4) Parent closes pipes & frees
+    for (int i = 0; i < n - 1; i++)
+    {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
+        free(pipes[i]);
+    }
+    free(pipes);
+
+    // 5) Wait and collect last exit status
+    int status, last = 0;
+    for (int i = 0; i < n; i++)
+    {
+        waitpid(pids[i], &status, 0);
+        if (i == n - 1)
+            last = WEXITSTATUS(status);
+        if (heredoc_fds[i] >= 0)
+            close(heredoc_fds[i]);  // cleanup any unused heredoc FDs
+    }
+    free(pids);
+    free(heredoc_fds);
+    return last;
+}
+
 
 // Top-level executor
 int	execute_command_line(t_token *tokens, char **envp)
@@ -453,21 +422,3 @@ int	execute_command_line(t_token *tokens, char **envp)
 }
 
 // Signal handling for readline
-static void	signal_handler(int sig)
-{
-	g_signal = sig;
-	if (sig == SIGINT)
-	{
-		printf("\n");
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
-
-// Set up signal handlers
-void	setup_signals(void)
-{
-	signal(SIGINT, signal_handler);
-	signal(SIGQUIT, SIG_IGN);
-}
