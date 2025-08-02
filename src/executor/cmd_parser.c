@@ -1,5 +1,15 @@
 #include "../../includes/minishell.h"
 
+// in src/executor/parser.c
+#include <stdio.h>
+#include <stdlib.h>
+t_cmd *parse_error(const char *msg)
+{
+    fprintf(stderr, "parse error: %s\n", msg);
+    return NULL;   // NULL signals “I couldn’t build a t_cmd”
+}
+
+
 t_cmd	*create_cmd(void)
 {
 	t_cmd *cmd = malloc(sizeof(t_cmd));
@@ -48,50 +58,64 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 			if (current)
 			{
 				current->argv[argc] = NULL;
-				if (!cmd_list) cmd_list = current;
-				else last->next = current;
+				if (!cmd_list)
+					cmd_list = current;
+				else
+					last->next = current;
 				last = current;
 			}
 			current = create_cmd();
 			argc = 0;
 		}
-		else if (tokens->type == T_COMMAND)
+		else if (tokens->type == T_WORD || tokens->type == T_ARGUMENT || tokens->type == T_OPTION
+		|| tokens->type == T_COMMAND)
 		{
-			// Handle T_COMMAND tokens - path is already resolved in value
-            printf("DEBUG: Command token value: '%s'\n", tokens->value);
-			if (!current) current = create_cmd();
+			if (!current)
+				current = create_cmd();
 			current->argv[argc++] = strdup(tokens->value);
 		}
-		else if (tokens->type == T_WORD || tokens->type == T_ARGUMENT || tokens->type == T_OPTION)
+		if (tokens->type == T_IN_REDIR)
 		{
-			// Handle other command components
+			t_token *next = tokens->next;
+			if (!next || next->type != T_WORD)
+				return parse_error("missing filename after '<'");
+			
 			if (!current) current = create_cmd();
-			current->argv[argc++] = strdup(tokens->value);
-		}
-		else if (tokens->type == T_IN_REDIR)
-		{
-			if (!current) current = create_cmd();
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-				current->input_file = strdup(tokens->value);
+			current->input_file = strdup(next->value);
+			tokens = next;      // consume the filename
+			continue;           // skip the bottom `tokens = tokens->next`
 		}
 		else if (tokens->type == T_OUT_REDIR || tokens->type == T_DOUT_REDIR)
 		{
-			if (!current) current = create_cmd();
-			int append = (tokens->type == T_DOUT_REDIR);
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-			{
-				current->output_file = strdup(tokens->value);
-				current->append_mode = append;
+			t_token *next = tokens->next;
+			if (!next || next->type != T_WORD) {
+				fprintf(stderr, "parse error: missing filename after '%s'\n",
+						tokens->type == T_DOUT_REDIR ? ">>" : ">");
+				free_cmd_list(cmd_list);
+				return NULL;
 			}
+			if (!current) current = create_cmd();
+			current->append_mode = (tokens->type == T_DOUT_REDIR);
+			current->output_file = strdup(next->value);
+
+			tokens = next;    // consume the filename
+			continue;         // skip the tokens = tokens->next at the bottom
 		}
 		else if (tokens->type == T_HEREDOC)
 		{
-			if (!current) current = create_cmd();
-			tokens = tokens->next;
-			if (tokens && tokens->type == T_WORD)
-				current->heredoc_delim = strdup(tokens->value);
+		    t_token *next = tokens->next;
+		    /* Validate that heredoc is followed by a WORD (the delimiter). */
+		    if (!next || next->type != T_WORD) {
+		        fprintf(stderr, "parse error: missing delimiter after '<<'\n");
+		        free_cmd_list(cmd_list);
+		        return NULL;
+		    }
+		    if (!current)
+		        current = create_cmd();
+		    /* Record the delimiter, consume exactly one token, then continue. */
+		    current->heredoc_delim = strdup(next->value);
+		    tokens = next;
+		    continue;
 		}
 		tokens = tokens->next;
 	}

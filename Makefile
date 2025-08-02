@@ -20,16 +20,19 @@ LDFLAGS = -lreadline
 # Source files
 SRCS = src/main.c \
        src/parser/tokenizer.c \
-	   src/parser/parser.c \
-	   src/parser/expander.c \
+       src/parser/parser.c \
+       src/parser/expander.c \
        src/executor/executor.c \
-	   src/executor/cmd_parser.c \
-	   src/executor/path_utils.c \
-	   src/executor/redir_utils.c \
-	   src/executor/signals.c \
+       src/executor/cmd_parser.c \
+       src/executor/path_utils.c \
+       src/executor/redir_utils.c \
+       src/executor/signals.c \
+       src/executor/heredoc.c \
+       src/executor/pipeline_utils.c \
+       src/executor/single_cmd.c \
        src/builtins/builtins.c \
-	   src/builtins/errors.c \
-	   src/utils/helper_functions.c
+       src/builtins/errors.c \
+       src/utils/helper_functions.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

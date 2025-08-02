@@ -151,4 +151,42 @@ int			setup_output_redirection(t_cmd *cmd);
 void		signal_handler(int sig);
 void		setup_signals(void);
 
+/* executor.c - existing functions that need to be declared */
+int		execute_single_command(t_cmd *cmd, char **envp);
+int		is_builtin_cmd(char *cmd_path);
+int		count_commands(t_cmd *cmd_list);
+
+/* heredoc.c */
+int		create_heredoc_pipe(const char *delim, int *out_fd);
+int		*create_heredoc_fds(t_cmd *cmd_list, int n);
+int		setup_single_cmd_input(t_cmd *cmd);
+
+/* pipeline_utils.c */
+void	setup_pipeline_input(t_cmd *cur, int i, int **pipes, int *heredoc_fds);
+void	setup_pipeline_output(t_cmd *cur, int i, int **pipes, int n);
+void	close_all_pipes(int **pipes, int n);
+int		**create_pipe_array(int n);
+void	free_pipe_array(int **pipes, int n);
+
+/* single_cmd.c */
+int		single_command_handler(t_cmd *cmd_list, char **envp);
+
+/* redir_utils.c - existing functions */
+int		setup_input_redirection(t_cmd *cmd);
+int		setup_output_redirection(t_cmd *cmd);
+
+/* builtins.c - existing functions */
+int		is_builtin(char *cmd);
+int		execute_builtin(char **argv, char **envp);
+
+/* path_utils.c */
+char	*find_command_path(char *cmd, char **envp);
+void	free_array(char **arr);
+
+/* executor.c */
+int		execute_pipeline(t_cmd *cmd_list, char **envp);
+int		wait_pipeline_processes(pid_t *pids, int n, int *heredoc_fds);
+void	error_exit(const char *msg);
+
+
 #endif
