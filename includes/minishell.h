@@ -23,8 +23,8 @@
 # include <errno.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-#include <sys/wait.h>
-#include <fcntl.h>
+# include <sys/wait.h>
+# include <fcntl.h>
 
 # define Q_DQUOT 1
 # define Q_SQUOT 2
@@ -41,7 +41,7 @@ typedef enum e_token_type
 	T_OUT_REDIR = 5,
 	T_COMMAND = 6,
 	T_ARGUMENT = 7,
-	T_OPTION = 8
+	T_FILE = 8
 }	t_token_type;
 
 typedef struct s_seg_type
@@ -104,13 +104,46 @@ typedef struct s_temp
 	t_token		**head;
 }				t_temp;
 
-int		ft_strcmp(char *s1, char *s2);
-t_token	*tokenize(char *line);
-void	free_tokens(t_token **head);
-int		parser(t_token **tokens, char **envp);
-int		quotes_validation(char *line);
-void	print_tokens(t_token *tokens);
-void	expand_variables(t_token *tokens);
+int				ft_strcmp(char *s1, char *s2);
+t_token			*tokenize(char *line);
+void			free_tokens(t_token **head);
+int				parser(t_token **tokens);
+int				quotes_validation(char *line);
+void			print_tokens(t_token *tokens);
+void			expand_variables(t_token **tokens);
+t_token_type	classify_token(char *s);
+void			free_tokens(t_token **tokens);
+t_token			*create_token(const char *val, t_token_type type, int in_quotes);
+void			append_token(t_token **head, t_token *new);
+int				quotes_validation(char *line);
+int				default_behavior(t_seg_type **segs, t_w_tok *w_tok, t_token **head);
+int				tokens_gathering(t_seg_type **segs, t_w_tok *w_tok, t_token **head);
+void			temp_init(t_temp *temp, t_seg_type **segs, t_token **head);
+int				extract_word_tokens(char *line, int *i, t_token **head);
+void			has_var_func(t_seg_type **segs, t_w_tok *w_tok);
+int				while_core_code(char *line, int *i, t_w_tok *w_tok, t_temp *temp);
+int				continue_while(char *line, int *i, t_temp *temp, t_w_tok *w_tok);
+int				continue_word(t_seg_type *segs, t_w_tok *w_tok, t_token **head);
+int				append_buf_token(t_token **head, char *buf, int len, int quoted);
+int				variable_finder(t_seg_type **segs, t_w_tok *w_tok, char *line, int *i);
+void			assign_quote_mask(t_w_tok *w_tok, int *i);
+int				segs_filler(t_seg_type **segs, t_w_tok *w_tok, char *line, int *i);
+void			w_tok_initializer(t_w_tok *w_tok);
+void			increment(int *j, int *len, char *line);
+t_token			*extract_operator_token(char *line, int *i);
+int				token_cases(char *line, t_token **head, int *i);
+t_token			*tokenize(char *line);
+int				is_special_char(char c);
+int				ft_isspace(int c);
+char			*ft_strndup(const char *src, int size);
+char			*ft_strjoin_three(char *s1, char *s2, char *s3);
+int				pipe_error(t_token *cur);
+int				print_syntax_error(char *value);
+int				missig_file(void);
+int				free_seg_type(t_seg_type **segs, int size);
+char			*malloc_fail(void);
+void			set_out(char **out, int *o_len, char *s, int *i);
+void			exit_status(char **out, int *o_len, int *i);
 
 // ─── Executor Functions ─────────────────────────────────────────────────────
 

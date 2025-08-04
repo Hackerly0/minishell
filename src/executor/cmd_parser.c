@@ -67,7 +67,7 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 			current = create_cmd();
 			argc = 0;
 		}
-		else if (tokens->type == T_WORD || tokens->type == T_ARGUMENT || tokens->type == T_OPTION
+		else if (tokens->type == T_WORD || tokens->type == T_ARGUMENT || tokens->type == T_FILE
 		|| tokens->type == T_COMMAND)
 		{
 			if (!current)
@@ -77,18 +77,18 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 		if (tokens->type == T_IN_REDIR)
 		{
 			t_token *next = tokens->next;
-			if (!next || next->type != T_WORD)
+			if (!next || (next->type != T_FILE && next->type != T_WORD))
 				return parse_error("missing filename after '<'");
 			
 			if (!current) current = create_cmd();
 			current->input_file = strdup(next->value);
-			tokens = next;      // consume the filename
+			tokens = next->next;      // consume the filename
 			continue;           // skip the bottom `tokens = tokens->next`
 		}
 		else if (tokens->type == T_OUT_REDIR || tokens->type == T_DOUT_REDIR)
 		{
 			t_token *next = tokens->next;
-			if (!next || next->type != T_WORD) {
+			if (!next || (next->type != T_FILE && next->type != T_WORD)) {
 				fprintf(stderr, "parse error: missing filename after '%s'\n",
 						tokens->type == T_DOUT_REDIR ? ">>" : ">");
 				free_cmd_list(cmd_list);
@@ -98,7 +98,7 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 			current->append_mode = (tokens->type == T_DOUT_REDIR);
 			current->output_file = strdup(next->value);
 
-			tokens = next;    // consume the filename
+			tokens = next->next;   // consume the filename
 			continue;         // skip the tokens = tokens->next at the bottom
 		}
 		else if (tokens->type == T_HEREDOC)
@@ -114,7 +114,7 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 		        current = create_cmd();
 		    /* Record the delimiter, consume exactly one token, then continue. */
 		    current->heredoc_delim = strdup(next->value);
-		    tokens = next;
+		    tokens = next->next;
 		    continue;
 		}
 		tokens = tokens->next;

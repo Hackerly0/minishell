@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+         #
+#    By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 00:00:00 by oalhoora          #+#    #+#              #
-#    Updated: 2025/07/19 19:51:40 by oalhoora         ###   ########.fr        #
+#    Updated: 2025/08/04 19:24:48 by hnisirat         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,9 +19,16 @@ LDFLAGS = -lreadline
 
 # Source files
 SRCS = src/main.c \
-       src/parser/tokenizer.c \
-       src/parser/parser.c \
-       src/parser/expander.c \
+	   src/parser/tokenizer.c \
+	   src/parser/parser.c \
+	   src/parser/expander.c \
+	   src/parser/parser_utils.c \
+	   src/parser/tokenizer_utils.c \
+	   src/parser/normal_behaviour.c \
+	   src/parser/normal_behaviour_two.c \
+	   src/parser/normal_behaviour_three.c \
+	   src/parser/utils.c \
+	   src/parser/expander_utils.c \
        src/executor/executor.c \
        src/executor/cmd_parser.c \
        src/executor/path_utils.c \
@@ -30,9 +37,9 @@ SRCS = src/main.c \
        src/executor/heredoc.c \
        src/executor/pipeline_utils.c \
        src/executor/single_cmd.c \
-       src/builtins/builtins.c \
-       src/builtins/errors.c \
-       src/utils/helper_functions.c
+	   src/builtins/builtins.c \
+	   src/builtins/errors.c \
+	   src/utils/helper_functions.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

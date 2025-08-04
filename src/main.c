@@ -121,7 +121,7 @@ int main(int argc, char **argv, char **envp)
         }
         
         // Expand variables
-        expand_variables(tokens);
+        expand_variables(&tokens);
         
         // Execute the command
         exit_code = execute_command_line(tokens, envp);

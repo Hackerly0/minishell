@@ -6,73 +6,89 @@
 /*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 19:10:00 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/07/19 20:25:32 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/02 22:02:00 by oalhoora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-char	*expand_string(const char *s)
+int	variable_founded(char *s, char **out, int *o_len, int *i)
+{
+	char	*name;
+	char	*val;
+	int		n;
+
+	(*i)++;
+	n = *i;
+	while (ft_isalnum(s[(*i)]) || s[(*i)] == '_')
+		(*i)++;
+	name = malloc((*i) - n + 1);
+	if (!name)
+	{
+		free(*out);
+		write(2, "malloc failure!\n", 17);
+		return (0);
+	}
+	ft_strlcpy(name, s + n, (*i) - n + 1);
+	val = getenv(name);
+	free(name);
+	if (!val)
+		val = "";
+	*out = realloc(*out, *o_len + ft_strlen(val) + 1);
+	ft_memcpy(*out + *o_len, val, ft_strlen(val));
+	*o_len += ft_strlen(val);
+	(*out)[*o_len] = '\0';
+	return (1);
+}
+
+char	*expand_string(char *s)
 {
 	char	*out;
 	int		o_len;
+	int		i;
 
 	o_len = 0;
 	out = malloc(1);
-	out[0] = '\0';
-
-	for (int i = 0; s[i]; )
+	if (!out)
+		return (malloc_fail());
+	i = 0;
+	while (s[i])
 	{
 		if (s[i] == '$')
 		{
-			i++;
-			char name[128];
-			int  n = 0;
-
-			if (s[i] == '{')
-			{
-				i++;
-				while (s[i] && s[i] != '}' && n < 126)
-					name[n++] = s[i++];
-				if (s[i] == '}') i++;
-			}
-			else
-			{
-				while (ft_isalnum((unsigned char)s[i]) || s[i] == '_')
-					name[n++] = s[i++];
-			}
-			name[n] = '\0';
-			char *val = getenv(name);
-			if (!val) val = "";
-			int vlen = ft_strlen(val);
-			out = realloc(out, o_len + vlen + 1);
-			ft_memcpy(out + o_len, val, vlen);
-			o_len += vlen;
-			out[o_len] = '\0';
+			if (s[i + 1] == '?')
+				exit_status(&out, &o_len, &i);
+			if (!variable_founded(s, &out, &o_len, &i))
+				return (NULL);
 		}
 		else
-		{
-			out = realloc(out, o_len + 2);
-			out[o_len++] = s[i++];
-			out[o_len]   = '\0';
-		}
+			set_out(&out, &o_len, s, &i);
 	}
-
-	return out;
+	return (out);
 }
 
-void expand_variables(t_token *tokens)
+void	expand_variables(t_token **tokens)
 {
-	for (t_token *t = tokens; t; t = t->next)
+	t_token	*cur;
+	char	*newval;
+
+	cur = *tokens;
+	while (cur)
 	{
-		if (t->type == T_WORD)
+		if (cur->type == T_WORD || cur->type == T_ARGUMENT
+			|| cur->type == T_FILE || cur->type == T_COMMAND)
 		{
-			// skip expansion for purely single-quoted tokens
-			if (t->in_quotes == 2)
-				continue;
-			char *newval = expand_string(t->value);
-			free(t->value);
-			t->value = newval;
+			if (cur->in_quotes == 2)
+			{
+				cur = cur->next;
+				continue ;
+			}
+			newval = expand_string(cur->value);
+			free(cur->value);
+			if (!newval)
+				return ;
+			cur->value = newval;
 		}
+		cur = cur->next;
 	}
 }
