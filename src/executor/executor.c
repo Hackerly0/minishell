@@ -102,6 +102,14 @@ int	execute_command_line(t_token *tokens, char **envp)
 	return (code);
 }
 
+static void	child_cleanup_and_exit(t_cmd *cmd_list, int **pipes, 
+								int n, int exit_code)
+{
+	free_cmd_list(cmd_list);
+	free_pipe_array(pipes, n);
+	exit(exit_code);
+}
+
 static void	fork_pipeline_commands(t_cmd *cmd_list, char **envp, int n)
 {
 	int		**pipes;
@@ -123,7 +131,16 @@ static void	fork_pipeline_commands(t_cmd *cmd_list, char **envp, int n)
 			setup_pipeline_input(cur, i, pipes, heredoc_fds);
 			setup_pipeline_output(cur, i, pipes, n);
 			close_all_pipes(pipes, n);
-			exit(execute_single_command(cur, envp));
+			child_cleanup_and_exit(cmd_list, pipes, n, 
+				execute_single_command(cur, envp));
+		}
+		else if (pids[i] < 0)
+		{
+			perror("fork");
+			free_pipe_array(pipes, n);
+			free(heredoc_fds);
+			free(pids);
+			return ;
 		}
 		cur = cur->next;
 		i++;

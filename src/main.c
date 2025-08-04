@@ -55,7 +55,8 @@ int g_signal = 0;
 
 static char *get_prompt(void)
 {
-    return "minishell$ ";
+    // return "minishell$ ";
+    return "niggashell$ ";
 }
 
 static void handle_signal_in_main(void)

@@ -123,8 +123,10 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 	if (current)
 	{
 		current->argv[argc] = NULL;
-		if (!cmd_list) cmd_list = current;
-		else last->next = current;
+		if (!cmd_list)
+			cmd_list = current;
+		else
+			last->next = current;
 	}
-	return cmd_list;
+	return (cmd_list);
 }
