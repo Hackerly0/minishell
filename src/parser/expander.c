@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 19:10:00 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 22:02:00 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/06 19:23:48 by hnisirat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	variable_founded(char *s, char **out, int *o_len, int *i)
 	free(name);
 	if (!val)
 		val = "";
-	*out = realloc(*out, *o_len + ft_strlen(val) + 1);
+	*out = ft_realloc(*out, *o_len + ft_strlen(val) + 1);
 	ft_memcpy(*out + *o_len, val, ft_strlen(val));
 	*o_len += ft_strlen(val);
 	(*out)[*o_len] = '\0';

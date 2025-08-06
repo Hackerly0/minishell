@@ -68,75 +68,75 @@ static void handle_signal_in_main(void)
     }
 }
 
-int main(int argc, char **argv, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
     (void)argc;
     (void)argv;
-    
-    char *line;
-    int exit_code = 0;
-    
-    // Setup signal handlers
+
+    char    *line;
+    int     exit_code = 0;
+
+    /* Setup signal handlers */
     setup_signals();
-    
-    // Set up environment for $? expansion
-    char exit_status[16];
+
+    /* Prepare `$?` for expansions */
+    char    exit_status[16];
     snprintf(exit_status, sizeof(exit_status), "%d", exit_code);
     setenv("?", exit_status, 1);
-    
+
     printf("Welcome to minishell!\n");
     printf("Type 'exit' to quit.\n");
-    
+
     while (1)
     {
-        // Handle any signals that occurred
+        /* Handle any pending signals */
         handle_signal_in_main();
-        
-        // Read input
+
+        /* Read a line */
         line = readline(get_prompt());
-        
-        // Handle EOF (Ctrl-D)
         if (!line)
         {
             printf("exit\n");
             break;
         }
-        
-        // Skip empty lines
+
+        /* Skip blank lines */
         if (!*line)
         {
             free(line);
-            continue;
+            continue ;
         }
-        
-        // Add to history
+
+        /* Add to history now that we know it’s syntactically valid */
         add_history(line);
-        
-        // Tokenize the input
+
+        /* Tokenize */
         t_token *tokens = tokenize(line);
         if (!tokens)
         {
             free(line);
-            continue;
+            continue ;
         }
-        
-        // Expand variables
+
+        /* Expand variables like `$?` */
         expand_variables(&tokens);
-        
-        // Execute the command
+
+        /* Dispatch into your existing executor */
         exit_code = execute_command_line(tokens, envp);
-        
-        // Update $? environment variable
+        free_tokens(&tokens);
+
+        /* Update `$?` */
         snprintf(exit_status, sizeof(exit_status), "%d", exit_code);
         setenv("?", exit_status, 1);
-        
-        // Clean up
-        free_tokens(&tokens);
+
+        /* Clean up this iteration */
         free(line);
     }
-    
-    // Clean up readline
+
+    /* Teardown readline & clean up `$?` */
     rl_clear_history();
-    
-    return exit_code;
+    rl_cleanup_after_signal();
+    unsetenv("?");
+
+    return (exit_code);
 }

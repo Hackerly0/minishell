@@ -6,7 +6,7 @@
 #    By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 00:00:00 by oalhoora          #+#    #+#              #
-#    Updated: 2025/08/04 19:24:48 by hnisirat         ###   ########.fr        #
+#    Updated: 2025/08/06 19:46:35 by hnisirat         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,6 +31,7 @@ SRCS = src/main.c \
 	   src/parser/expander_utils.c \
        src/executor/executor.c \
        src/executor/cmd_parser.c \
+	   src/executor/cmd_parser_helper.c \
        src/executor/path_utils.c \
        src/executor/redir_utils.c \
        src/executor/signals.c \

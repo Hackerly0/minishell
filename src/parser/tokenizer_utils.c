@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:55:25 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 20:03:36 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/04 23:40:05 by hnisirat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	free_tokens(t_token **tokens)
 		free(*tokens);
 		*tokens = next;
 	}
+	*tokens = NULL;
 }
 
 t_token	*create_token(const char *val, t_token_type type, int in_quotes)
