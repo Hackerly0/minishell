@@ -20,6 +20,7 @@ t_cmd	*create_cmd(void)
 	cmd->heredoc_delim = NULL;
 	cmd->append_mode = 0;
 	cmd->next = NULL;
+	cmd->token_list = NULL;  // Initialize token list to NULL
 	return (cmd);
 }
 

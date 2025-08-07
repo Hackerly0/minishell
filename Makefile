@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+         #
+#    By: hassende <hassende@student.42amman.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 00:00:00 by oalhoora          #+#    #+#              #
-#    Updated: 2025/08/06 19:46:35 by hnisirat         ###   ########.fr        #
+#    Updated: 2025/08/07 12:25:06 by hassende         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = minishell
 
 # Compiler and flags
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g3
 LDFLAGS = -lreadline
 
 # Source files

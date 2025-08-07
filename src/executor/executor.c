@@ -73,6 +73,8 @@ int	execute_single_command(t_cmd *cmd, char **envp)
 			cmd_path = resolved_path;
 		else
 		{
+			free(cmd->token_list->value);
+			free(cmd->token_list);
 			fprintf(stderr, "minishell: %s: command not found\n", resolved_path);
 			//free_cmd(cmd);
 			return (127);
@@ -104,12 +106,13 @@ int	execute_command_line(t_token *tokens, char **envp)
 	cmds = parse_tokens_to_commands(tokens);
 	if (!cmds)
 		return (0);
+	cmds->token_list = tokens;
 	code = execute_pipeline(cmds, envp);
 	free_cmd_list(cmds);
 	return (code);
 }
 
-static void	child_cleanup_and_exit(t_cmd *cmd_list, int **pipes, 
+static void	child_cleanup_and_exit(t_cmd *cmd_list, int **pipes,
 								int n, int exit_code)
 {
 	free_cmd_list(cmd_list);
