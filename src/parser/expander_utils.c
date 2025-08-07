@@ -20,7 +20,7 @@ char	*malloc_fail(void)
 
 void	set_out(char **out, int *o_len, char *s, int *i)
 {
-	*out = realloc(*out, *o_len + 2);
+	*out = ft_realloc(*out, *o_len + 2);
 	(*out)[(*o_len)++] = s[(*i)++];
 	(*out)[*o_len] = '\0';
 }
@@ -30,7 +30,7 @@ void	exit_status(char **out, int *o_len, int *i)
 	char	*temp;
 
 	temp = ft_itoa(g_signal);
-	*out = realloc(*out, *o_len + ft_strlen(temp));
+	*out = ft_realloc(*out, *o_len + ft_strlen(temp)); //
 	ft_memcpy(*out + *o_len, temp, ft_strlen(temp));
 	*o_len += ft_strlen(temp);
 	free(temp);

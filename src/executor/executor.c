@@ -71,6 +71,12 @@ int	execute_single_command(t_cmd *cmd, char **envp)
 		char *resolved_path = find_command_path(cmd_path, envp);
 		if (resolved_path)
 			cmd_path = resolved_path;
+		else
+		{
+			fprintf(stderr, "minishell: %s: command not found\n", resolved_path);
+			//free_cmd(cmd);
+			return (127);
+		}
 	}
 	execve(cmd_path, cmd->argv, envp);
 	cmd_name = ft_strrchr(cmd->argv[0], '/');
@@ -84,7 +90,8 @@ int	execute_single_command(t_cmd *cmd, char **envp)
 		perror("execve");
 	if (cmd_path != cmd->argv[0])
 		free(cmd_path);
-	exit (127);
+	free_cmd(cmd);
+	return (127);
 }
 
 int	execute_command_line(t_token *tokens, char **envp)
@@ -96,10 +103,7 @@ int	execute_command_line(t_token *tokens, char **envp)
 		return (0);
 	cmds = parse_tokens_to_commands(tokens);
 	if (!cmds)
-	{
-		free_tokens(&tokens);
 		return (0);
-	}
 	code = execute_pipeline(cmds, envp);
 	free_cmd_list(cmds);
 	return (code);

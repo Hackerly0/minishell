@@ -6,7 +6,7 @@
 /*   By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/19 19:10:00 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/06 19:23:48 by hnisirat         ###   ########.fr       */
+/*   Updated: 2025/08/06 22:10:56 by hnisirat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ char	*expand_string(char *s)
 	out = malloc(1);
 	if (!out)
 		return (malloc_fail());
+	out[0] = '\0';
 	i = 0;
 	while (s[i])
 	{

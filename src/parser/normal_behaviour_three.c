@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   normal_behaviour_three.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 20:01:28 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 20:13:32 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/06 20:48:47 by hnisirat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int	append_buf_token(t_token **head, char *buf, int len, int quoted)
 		append_token(head, tok);
 		return (1);
 	}
+	free_tokens(&tok);
 	return (0);
 }
 

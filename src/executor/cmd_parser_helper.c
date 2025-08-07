@@ -29,16 +29,16 @@ void	process_redir(t_cmd **cur, t_token *tok, t_token **toks)
 	if (!*cur)  
 		*cur = create_cmd();  
 	next = tok->next;  
-	if (tok->type == T_IN_REDIR)  
-		(*cur)->input_file = strdup(next->value);  
+	if (tok->type == T_IN_REDIR)
+		(*cur)->input_file = ft_strdup(next->value); // 
 	else if (tok->type == T_OUT_REDIR  
 		|| tok->type == T_DOUT_REDIR)  
 	{  
 		(*cur)->append_mode  
 			= (tok->type == T_DOUT_REDIR);  
-		(*cur)->output_file = strdup(next->value);  
+		(*cur)->output_file = ft_strdup(next->value);  //
 	}  
 	else  
-		(*cur)->heredoc_delim = strdup(next->value);  
+		(*cur)->heredoc_delim = ft_strdup(next->value);  //
 	*toks = next->next;  
 }

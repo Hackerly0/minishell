@@ -77,7 +77,7 @@ t_cmd	*parse_tokens_to_commands(t_token *tokens)
 		{
 			if (!cur)
 				cur = create_cmd();
-			cur->argv[argc++] = strdup(tokens->value);
+			cur->argv[argc++] = ft_strdup(tokens->value);
 		}
 		tokens = tokens->next;
 	}

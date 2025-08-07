@@ -68,6 +68,7 @@ int	single_command_handler(t_cmd *cmd_list, char **envp)
 	pid_t	pid;
 	int		status;
 	char	*cmd_name;
+	int		exit_code;
 
 	if (cmd_list->argv[0])
 	{
@@ -77,10 +78,12 @@ int	single_command_handler(t_cmd *cmd_list, char **envp)
 	}
 	pid = fork();
 	if (pid == 0)
-	{
-		setup_single_cmd_input(cmd_list);
-		setup_output_redirection(cmd_list);
-		exit(execute_single_command(cmd_list, envp));
+	{   
+        setup_single_cmd_input(cmd_list);
+        setup_output_redirection(cmd_list);
+        exit_code = execute_single_command(cmd_list, envp);
+        free_cmd_list(cmd_list);
+        exit(exit_code);
 	}
 	waitpid(pid, &status, 0);
 	return (WEXITSTATUS(status));

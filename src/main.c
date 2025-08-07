@@ -120,9 +120,15 @@ int	main(int argc, char **argv, char **envp)
 
         /* Expand variables like `$?` */
         expand_variables(&tokens);
-
+        if(!parser(&tokens))
+        {
+            free(line);
+            free_tokens(&tokens);
+            continue;
+        }
         /* Dispatch into your existing executor */
         exit_code = execute_command_line(tokens, envp);
+        printf("hello\n");
         free_tokens(&tokens);
 
         /* Update `$?` */

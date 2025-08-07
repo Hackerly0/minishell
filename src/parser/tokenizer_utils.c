@@ -6,7 +6,7 @@
 /*   By: hnisirat <hnisirat@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:55:25 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/04 23:40:05 by hnisirat         ###   ########.fr       */
+/*   Updated: 2025/08/06 23:01:09 by hnisirat         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,13 @@ t_token	*create_token(const char *val, t_token_type type, int in_quotes)
 {
 	t_token	*tok;
 
-	tok = malloc(sizeof(*tok));
+	tok = malloc(sizeof(t_token));
 	if (!tok)
 		return (NULL);
 	tok->value = ft_strdup(val);
 	if (!tok->value)
 	{
-		free(tok);
+		free_tokens(&tok);
 		return (NULL);
 	}
 	tok->type = type;
