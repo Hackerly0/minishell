@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: hassende <hassende@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/02 21:50:01 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 20:46:48 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/07 12:13:14 by hassende         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

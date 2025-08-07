@@ -87,6 +87,8 @@ typedef struct s_cmd
 	char			*heredoc_delim; // Heredoc delimiter
 	int				append_mode;    // Append mode for output
 	struct s_cmd	*next;          // Next command in pipeline
+	// for test
+	t_token			*token_list;    // List of tokens for this command
 }					t_cmd;
 
 // Execution context

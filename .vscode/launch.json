@@ -1,0 +1,65 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug minishell",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/minishell",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build minishell",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Debug minishell with valgrind",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/minishell",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build minishell",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "miDebuggerServerAddress": "localhost:1234",
+            "postRemoteConnectCommands": [
+                {
+                    "description": "Continue execution to reach valgrind",
+                    "text": "-exec-continue",
+                    "ignoreFailures": false
+                }
+            ]
+        }
+    ]
+}

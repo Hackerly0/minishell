@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   normal_behaviour.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: hassende <hassende@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:58:54 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 20:10:18 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/07 11:54:41 by hassende         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
