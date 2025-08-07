@@ -14,6 +14,7 @@
 
 void	setup_pipeline_input(t_cmd *cur, int i, int **pipes, int *heredoc_fds)
 {
+	fprintf (stderr ,"fd[%i]: %i\n", i, heredoc_fds[i]);
 	if (heredoc_fds[i] >= 0)
 	{
 		dup2(heredoc_fds[i], STDIN_FILENO);

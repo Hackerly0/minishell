@@ -80,6 +80,7 @@ int	setup_single_cmd_input(t_cmd *cmd)
 	{
 		if (create_heredoc_pipe(cmd->heredoc_delim, &heredoc_fd) < 0)
 			return (-1);
+		
 		dup2(heredoc_fd, STDIN_FILENO);
 		close(heredoc_fd);
 	}

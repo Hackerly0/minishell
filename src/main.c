@@ -30,7 +30,7 @@ int g_signal = 0;
 // 			//printf("\n");
 //             expand_variables(tokens);
 // 			flag = parser(&tokens, envp);
-            
+
 // 			if (flag == 0)
 // 				printf("syntax: wrong redirection\n");
 // 			else if (flag == 1)
@@ -128,8 +128,8 @@ int	main(int argc, char **argv, char **envp)
         }
         /* Dispatch into your existing executor */
         exit_code = execute_command_line(tokens, envp);
-        printf("hello\n");
         free_tokens(&tokens);
+        //printf("hello\n");
 
         /* Update `$?` */
         snprintf(exit_status, sizeof(exit_status), "%d", exit_code);

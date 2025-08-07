@@ -87,6 +87,8 @@ typedef struct s_cmd
 	char			*heredoc_delim; // Heredoc delimiter
 	int				append_mode;    // Append mode for output
 	struct s_cmd	*next;          // Next command in pipeline
+	// for test
+	t_token			*token_list;    // List of tokens for this command
 }					t_cmd;
 
 // Execution context
@@ -218,7 +220,7 @@ void	free_array(char **arr);
 
 /* executor.c */
 int		execute_pipeline(t_cmd *cmd_list, char **envp);
-int		wait_pipeline_processes(pid_t *pids, int n, int *heredoc_fds);
+int		wait_pipeline_processes(pid_t pids, int n, int *heredoc_fds);
 void	error_exit(const char *msg);
 
 
