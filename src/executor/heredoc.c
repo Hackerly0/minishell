@@ -1,90 +1,189 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: haitham                                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/08 20:00:00 by haitham           #+#    #+#             */
+/*   Updated: 2025/08/08 20:00:00 by haitham          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../includes/minishell.h"
 
-static void	heredoc_reader(int write_fd, char *delim)
+static int  hd_save_stdin(int *saved)
 {
-	char	*line;
-
-	while (1)
-	{
-		line = readline("> ");
-		if (!line || !ft_strcmp(line, delim))
-		{
-			if (line)
-				free(line);
-			break ;
-		}
-		write(write_fd, line, ft_strlen(line));
-		write(write_fd, "\n", 1);
-		free(line);
-	}
-	close(write_fd);
-	exit(EXIT_SUCCESS);
+    *saved = dup(STDIN_FILENO);
+    if (*saved == -1)
+        return (-1);
+    return (0);
 }
 
-int	create_heredoc_pipe(const char *delim, int *out_fd)
+static int  hd_restore_stdin(int saved)
 {
-	int		pipefd[2];
-	pid_t	pid;
-
-	if (pipe(pipefd) == -1)
-		return (-1);
-	pid = fork();
-	if (pid < 0)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return (-1);
-	}
-	if (pid == 0)
-	{
-		close(pipefd[0]);
-		heredoc_reader(pipefd[1], (char *)delim);
-	}
-	close(pipefd[1]);
-	waitpid(pid, NULL, 0);
-	*out_fd = pipefd[0];
-	return (0);
+    if (saved >= 0)
+    {
+        if (dup2(saved, STDIN_FILENO) == -1)
+        {
+            close(saved);
+            return (-1);
+        }
+        close(saved);
+    }
+    return (0);
 }
 
-int	*create_heredoc_fds(t_cmd *cmd_list, int n)
+static int  hd_write_line(int wfd, char *s)
 {
-	int		*heredoc_fds;
-	t_cmd	*c;
-	int		i;
+    ssize_t n;
+	char	*str;
 
-	heredoc_fds = malloc(sizeof(int) * n);
-	if (!heredoc_fds)
-		return (NULL);
-	c = cmd_list;
-	i = 0;
-	while (i < n)
+    if (!s)
 	{
-		if (c->heredoc_delim)
-		{
-			if (create_heredoc_pipe(c->heredoc_delim, &heredoc_fds[i]) < 0)
-				heredoc_fds[i] = -1;
-		}
-		else
-			heredoc_fds[i] = -1;
-		c = c->next;
-		i++;
+        return (0);
 	}
-	return (heredoc_fds);
+	str = expand_string(s);
+    n = write(wfd, str, ft_strlen(str));
+    if (n < 0)
+	{
+        return (-1);
+	}
+    if (write(wfd, "\n", 1) < 0)
+	{
+        return (-1);
+	}
+	free(str);
+    return (0);
 }
 
-int	setup_single_cmd_input(t_cmd *cmd)
+static int  hd_loop(const char *delim, int wfd)
 {
-	int	heredoc_fd;
+    int     saved;
+    char    *in;
 
-	if (cmd->heredoc_delim)
-	{
-		if (create_heredoc_pipe(cmd->heredoc_delim, &heredoc_fd) < 0)
-			return (-1);
-		
-		dup2(heredoc_fd, STDIN_FILENO);
-		close(heredoc_fd);
-	}
-	else if (setup_input_redirection(cmd) == -1)
-		return (-1);
-	return (0);
+    if (hd_save_stdin(&saved) == -1)
+        return (-1);
+    while (1)
+    {
+        in = readline("> ");
+        if (g_signal == SIGINT)
+        {
+            g_signal = 0;
+            close(wfd);
+            hd_restore_stdin(saved);
+            return (-1);
+        }
+        if (!in || ft_strcmp(in, delim) == 0)
+            break ;
+        if (hd_write_line(wfd, in) == -1)
+        {
+            free(in);
+            hd_restore_stdin(saved);
+            return (-1);
+        }
+        free(in);
+    }
+    free(in);
+    hd_restore_stdin(saved);
+    return (0);
+}
+
+void    set_cloexec(int fd)
+{
+    int flags;
+
+    flags = fcntl(fd, F_GETFD);
+    if (flags == -1)
+        return ;
+    fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+}
+
+static int  hd_make_pipe(int pipefd[2])
+{
+    if (pipe(pipefd) == -1)
+        return (-1);
+    set_cloexec(pipefd[0]);
+    set_cloexec(pipefd[1]);
+    return (0);
+}
+
+/* public API **************************************************************** */
+
+int create_heredoc_pipe(const char *delim, int *out_fd)
+{
+    int pipefd[2];
+
+    if (!delim || !out_fd)
+        return (-1);
+    if (hd_make_pipe(pipefd) == -1)
+        return (-1);
+    if (hd_loop(delim, pipefd[1]) == -1)
+    {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return (-1);
+    }
+    close(pipefd[1]);
+    *out_fd = pipefd[0];
+    return (0);
+}
+
+static int  hd_assign_fd_for_cmd(t_cmd *c, int *dst)
+{
+    if (!c || !c->heredoc_delim)
+    {
+        *dst = -1;
+        return (0);
+    }
+    if (create_heredoc_pipe(c->heredoc_delim, dst) == -1)
+    {
+        *dst = -1;
+        return (-1);
+    }
+    return (0);
+}
+
+int *create_heredoc_fds(t_cmd *cmds, int n)
+{
+    int     *fds;
+    int     i;
+    t_cmd   *cur;
+
+    fds = (int *)malloc(sizeof(int) * n);
+    if (!fds)
+        return (NULL);
+    cur = cmds;
+    i = 0;
+    while (i < n && cur)
+    {
+        if (hd_assign_fd_for_cmd(cur, &fds[i]) == -1)
+        {
+            close_heredoc_fds(fds, i + 1);
+            free(fds);
+            return (NULL);
+        }
+        cur = cur->next;
+        i++;
+    }
+    return (fds);
+}
+
+int setup_single_cmd_input(t_cmd *cmd)
+{
+    int hd_fd;
+
+    if (cmd && cmd->heredoc_delim)
+    {
+        if (create_heredoc_pipe(cmd->heredoc_delim, &hd_fd) == -1)
+            return (-1);
+        if (dup2(hd_fd, STDIN_FILENO) == -1)
+        {
+            close(hd_fd);
+            return (-1);
+        }
+        close(hd_fd);
+        return (0);
+    }
+    return (setup_input_redirection(cmd));
 }

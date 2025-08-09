@@ -80,3 +80,33 @@ void	free_pipe_array(int **pipes, int n)
 	}
 	free(pipes);
 }
+
+void    close_heredoc_fds(int *fds, int n)
+{
+    int i;
+
+    if (!fds)
+        return ;
+    i = 0;
+    while (i < n)
+    {
+        if (fds[i] >= 0)
+            close(fds[i]);
+        i++;
+    }
+}
+
+void    close_other_heredoc_fds(int *fds, int n, int keep)
+{
+    int i;
+
+    if (!fds)
+        return ;
+    i = 0;
+    while (i < n)
+    {
+        if (i != keep && fds[i] >= 0)
+            close(fds[i]);
+        i++;
+    }
+}

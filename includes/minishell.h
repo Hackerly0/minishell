@@ -106,7 +106,7 @@ typedef struct s_temp
 	t_token		**head;
 }				t_temp;
 
-int				ft_strcmp(char *s1, char *s2);
+int				ft_strcmp(const char *s1, const char *s2);
 t_token			*tokenize(char *line);
 void			free_tokens(t_token **head);
 int				parser(t_token **tokens);
@@ -146,6 +146,8 @@ int				free_seg_type(t_seg_type **segs, int size);
 char			*malloc_fail(void);
 void			set_out(char **out, int *o_len, char *s, int *i);
 void			exit_status(char **out, int *o_len, int *i);
+char			*expand_string(char *s);
+
 
 // ─── Executor Functions ─────────────────────────────────────────────────────
 
@@ -202,6 +204,8 @@ void	setup_pipeline_output(t_cmd *cur, int i, int **pipes, int n);
 void	close_all_pipes(int **pipes, int n);
 int		**create_pipe_array(int n);
 void	free_pipe_array(int **pipes, int n);
+void    close_heredoc_fds(int *fds, int n);
+void    close_other_heredoc_fds(int *fds, int n, int keep);
 
 /* single_cmd.c */
 int		single_command_handler(t_cmd *cmd_list, char **envp);
@@ -220,7 +224,7 @@ void	free_array(char **arr);
 
 /* executor.c */
 int		execute_pipeline(t_cmd *cmd_list, char **envp);
-int		wait_pipeline_processes(pid_t pids, int n, int *heredoc_fds);
+int		wait_pipeline_processes(pid_t *pids, int n);
 void	error_exit(const char *msg);
 
 

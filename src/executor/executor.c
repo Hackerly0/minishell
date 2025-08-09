@@ -125,72 +125,88 @@ static void	fork_pipeline_commands(t_cmd *cmd_list, char **envp, int n)
 {
 	int		**pipes;
 	int		*heredoc_fds;
-	pid_t	pids;
+	pid_t	*pids;
 	t_cmd	*cur;
 	int		i;
 
-	
 	heredoc_fds = create_heredoc_fds(cmd_list, n);
 	pipes = create_pipe_array(n);
-	//pids = malloc(sizeof(pid_t) * n);
+	pids = malloc(sizeof(pid_t) * n);
 	cur = cmd_list;
 	i = 0;
 	while (i < n)
 	{
-		pids = fork();
-		if (pids == 0)
+		pids[i] = fork();
+		if (pids[i] == 0)
 		{
-			printf("%i\n", i);
-			 setup_pipeline_input(cur, i, pipes, heredoc_fds);
-			 setup_pipeline_output(cur, i, pipes, n);
-			 free(heredoc_fds);
-			 //free(pids);
-			 close_all_pipes(pipes, n);
-			 child_cleanup_and_exit(cmd_list, pipes, n,
-			     execute_single_command(cur, envp));
+			if (heredoc_fds && heredoc_fds[i] >= 0)
+			{
+				if (dup2(heredoc_fds[i], STDIN_FILENO) == -1)
+					child_cleanup_and_exit(cmd_list, pipes, n,
+						execute_single_command(cur, envp));
+				close(heredoc_fds[i]);
+			}
+			close_other_heredoc_fds(heredoc_fds, n, i);
+			setup_pipeline_input(cur, i, pipes, heredoc_fds);
+			setup_pipeline_output(cur, i, pipes, n);
+			close_all_pipes(pipes, n);
+			free(pids);
+			free(heredoc_fds);
+			child_cleanup_and_exit(cmd_list, pipes, n,
+				execute_single_command(cur, envp));
 		}
-		else if (pids < 0)
+		else if (pids[i] < 0)
 		{
 			perror("fork");
-			free_pipe_array(pipes, n);
+			close_heredoc_fds(heredoc_fds, n);
 			free(heredoc_fds);
-			//free(pids);
+			free_pipe_array(pipes, n);
+			free(pids);
 			return ;
 		}
 		cur = cur->next;
 		i++;
 	}
 	free_pipe_array(pipes, n);
-	wait_pipeline_processes(pids, n, heredoc_fds);
-	//free(pids);
+	wait_pipeline_processes(pids, n);
+	close_heredoc_fds(heredoc_fds, n);
 	free(heredoc_fds);
+	heredoc_fds = NULL;
+
+	free(pids);
+	pids = NULL;
 }
 
-int	wait_pipeline_processes(pid_t pids, int n, int *heredoc_fds)
+int wait_pipeline_processes(pid_t *pids, int n)
 {
-	int	status;
-	int	last;
-	int	i;
+    int   i;
+    int   status;
+    int   last;
+    pid_t last_pid;
 
-	(void)pids;
-	last = 0;
-	i = 0;
-	while (i < n)
-	{
-		waitpid(-1, &status, 0);
-		if (i == n - 1)
-		{
-			if (WIFEXITED(status))
-				last = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				last = WTERMSIG(status) + 128;
-		}
-		if (heredoc_fds[i] >= 0)
-			close(heredoc_fds[i]);
-		i++;
-	}
-	return (last);
+    if (!pids || n <= 0)
+        return (0);
+    last = 0;
+    last_pid = pids[n - 1];
+    i = 0;
+    while (i < n)
+    {
+        pid_t done = waitpid(-1, &status, 0);
+        if (done == -1)
+            continue;
+        if (done == last_pid)
+        {
+            if (WIFEXITED(status))
+                last = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                last = WTERMSIG(status) + 128;
+        }
+        i++;
+    }
+    return (last);
 }
+
+
 
 int	execute_pipeline(t_cmd *cmd_list, char **envp)
 {
