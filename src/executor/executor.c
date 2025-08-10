@@ -130,6 +130,8 @@ static void	fork_pipeline_commands(t_cmd *cmd_list, char **envp, int n)
 	int		i;
 
 	heredoc_fds = create_heredoc_fds(cmd_list, n);
+	if (!heredoc_fds)
+        return ;
 	pipes = create_pipe_array(n);
 	pids = malloc(sizeof(pid_t) * n);
 	cur = cmd_list;

@@ -29,7 +29,7 @@
 # define Q_DQUOT 1
 # define Q_SQUOT 2
 
-extern int g_signal;
+extern volatile sig_atomic_t g_signal;
 
 typedef enum e_token_type
 {
@@ -195,6 +195,7 @@ int		count_commands(t_cmd *cmd_list);
 
 /* heredoc.c */
 int		create_heredoc_pipe(const char *delim, int *out_fd);
+//int		create_heredoc_pipe(const char *delim, int *out_fd, t_cmd *cmd);
 int		*create_heredoc_fds(t_cmd *cmd_list, int n);
 int		setup_single_cmd_input(t_cmd *cmd);
 
@@ -227,5 +228,10 @@ int		execute_pipeline(t_cmd *cmd_list, char **envp);
 int		wait_pipeline_processes(pid_t *pids, int n);
 void	error_exit(const char *msg);
 
+
+void	env_free_all(char ***envp);
+
+void	setup_signals(void);
+void	setup_hd_signals(void);
 
 #endif

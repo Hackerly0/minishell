@@ -14,16 +14,15 @@
 
 void	setup_pipeline_input(t_cmd *cur, int i, int **pipes, int *heredoc_fds)
 {
-	fprintf (stderr ,"fd[%i]: %i\n", i, heredoc_fds[i]);
-	if (heredoc_fds[i] >= 0)
-	{
-		dup2(heredoc_fds[i], STDIN_FILENO);
-		close(heredoc_fds[i]);
-	}
-	else if (cur->input_file)
-		setup_input_redirection(cur);
-	else if (i > 0)
-		dup2(pipes[i - 1][0], STDIN_FILENO);
+    if (heredoc_fds && heredoc_fds[i] >= 0)        // <- guard pointer
+    {
+        dup2(heredoc_fds[i], STDIN_FILENO);
+        close(heredoc_fds[i]);
+    }
+    else if (cur->input_file)
+        setup_input_redirection(cur);
+    else if (i > 0)
+        dup2(pipes[i - 1][0], STDIN_FILENO);
 }
 
 void	setup_pipeline_output(t_cmd *cur, int i, int **pipes, int n)
