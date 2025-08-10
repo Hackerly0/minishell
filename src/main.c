@@ -75,12 +75,10 @@ int	main(int argc, char **argv, char **envp)
 
     char    *line;
     int     exit_code = 0;
-    char    **envp_p;
 
     /* Setup signal handlers */
     setup_signals();
 
-    envp_p = envp;
     /* Prepare `$?` for expansions */
     char    exit_status[16];
     snprintf(exit_status, sizeof(exit_status), "%d", exit_code);
@@ -129,7 +127,7 @@ int	main(int argc, char **argv, char **envp)
             continue;
         }
         /* Dispatch into your existing executor */
-        exit_code = execute_command_line(tokens, envp_p);
+        exit_code = execute_command_line(tokens, envp);
         free_tokens(&tokens);
         //printf("hello\n");
 

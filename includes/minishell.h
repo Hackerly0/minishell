@@ -29,7 +29,7 @@
 # define Q_DQUOT 1
 # define Q_SQUOT 2
 
-extern volatile sig_atomic_t g_signal;
+extern int g_signal;
 
 typedef enum e_token_type
 {
@@ -231,7 +231,7 @@ void	error_exit(const char *msg);
 
 void	env_free_all(char ***envp);
 
-void	setup_signals(void);
-void	setup_hd_signals(void);
+void setup_signals(void);
+void setup_hd_signals(void);
 
 #endif
