@@ -14,10 +14,13 @@
 
 volatile sig_atomic_t	g_signal;
 
-static void	handle_signal_in_main(void)
+static void	handle_signal_in_main(t_data *data)
 {
 	if (g_signal == SIGINT)
+	{
+		data->exit_code = 128 + SIGINT;
 		g_signal = 0;
+	}
 }
 
 void	main_while(t_data *data, t_token **tokens, char **line,
@@ -25,7 +28,7 @@ void	main_while(t_data *data, t_token **tokens, char **line,
 {
 	while (1)
 	{
-		handle_signal_in_main();
+		handle_signal_in_main(data);
 		*line = readline("minishell$ ");
 		if (!*line)
 		{
