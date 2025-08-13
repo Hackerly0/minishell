@@ -93,7 +93,8 @@ typedef struct s_cmd
 	char			**argv;
 	char			*input_file;
 	char			*output_file;
-	char			*heredoc_delim;
+	char			**heredoc_delims;
+	int				heredoc_count;
 	int				append_mode;
 	struct s_cmd	*next;
 	t_token			*token_list;
@@ -160,7 +161,7 @@ int				execute_command_line(t_token *tokens,
 int				init_pipeline_data(t_temp_pipeline *temp,
 					t_cmd *cmd_list, int n, t_data *data);
 void			error_fd_pipe(t_temp_pipeline *temp, int n);
-void			pipeline_cont(t_temp_pipeline *temp, int n);
+int				pipeline_cont(t_temp_pipeline *temp, int n);
 void			finalize_cmd(t_cmd *cur, t_cmd **head,
 					t_cmd **tail, int argc);
 void			process_redir(t_cmd **cur, t_token *tok,

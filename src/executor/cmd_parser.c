@@ -22,7 +22,8 @@ t_cmd	*create_cmd(void)
 	cmd->argv = malloc(sizeof(char *) * 256);
 	cmd->input_file = NULL;
 	cmd->output_file = NULL;
-	cmd->heredoc_delim = NULL;
+	cmd->heredoc_delims = NULL;
+	cmd->heredoc_count = 0;
 	cmd->append_mode = 0;
 	cmd->next = NULL;
 	cmd->token_list = NULL;

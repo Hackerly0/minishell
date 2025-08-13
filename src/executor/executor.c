@@ -58,7 +58,7 @@ int	execute_command_line(t_token *tokens, t_env **envp, t_data *data)
 	return (code);
 }
 
-static void	fork_pipeline_commands(t_cmd *cmd_list, t_env **envp,
+static int	fork_pipeline_commands(t_cmd *cmd_list, t_env **envp,
 								int n, t_data *data)
 {
 	t_temp_pipeline	temp;
@@ -66,7 +66,7 @@ static void	fork_pipeline_commands(t_cmd *cmd_list, t_env **envp,
 	if (!init_pipeline_data(&temp, cmd_list, n, data))
 	{
 		perror("Failed to initialize pipeline data");
-		return ;
+		return (1);
 	}
 	while (temp.i < n)
 	{
@@ -76,12 +76,12 @@ static void	fork_pipeline_commands(t_cmd *cmd_list, t_env **envp,
 		else if (temp.pids[temp.i] < 0)
 		{
 			error_fd_pipe(&temp, n);
-			return ;
+			return (1);
 		}
 		temp.cur = temp.cur->next;
 		temp.i++;
 	}
-	pipeline_cont(&temp, n);
+	return (pipeline_cont(&temp, n));
 }
 
 int	wait_pipeline_processes(pid_t *pids, int n)
@@ -116,10 +116,11 @@ int	wait_pipeline_processes(pid_t *pids, int n)
 int	execute_pipeline(t_cmd *cmd_list, t_env **envp, t_data *data)
 {
 	int	n;
+	int	status;
 
 	n = count_commands(cmd_list);
 	if (n == 1)
 		return (single_command_handler(cmd_list, envp, data));
-	fork_pipeline_commands(cmd_list, envp, n, data);
-	return (0);
+	status = fork_pipeline_commands(cmd_list, envp, n, data);
+	return (status);
 }

@@ -26,17 +26,26 @@ int	permission_denied(char *cmd_path, char **envp, char **argv)
 int	setup_single_cmd_input(t_cmd *cmd, t_data *data)
 {
 	int	hd_fd;
+	int	i;
 
-	if (cmd && cmd->heredoc_delim)
+	if (cmd && cmd->heredoc_count > 0)
 	{
-		if (create_heredoc_pipe(cmd->heredoc_delim, &hd_fd, data) == -1)
-			return (-1);
-		if (dup2(hd_fd, STDIN_FILENO) == -1)
+		i = 0;
+		while (i < cmd->heredoc_count)
 		{
+			if (create_heredoc_pipe(cmd->heredoc_delims[i], &hd_fd, data) == -1)
+				return (-1);
+			if (i == cmd->heredoc_count - 1)
+			{
+				if (dup2(hd_fd, STDIN_FILENO) == -1)
+				{
+					close(hd_fd);
+					return (-1);
+				}
+			}
 			close(hd_fd);
-			return (-1);
+			i++;
 		}
-		close(hd_fd);
 		return (0);
 	}
 	return (setup_input_redirection(cmd));

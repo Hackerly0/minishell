@@ -12,6 +12,28 @@
 
 #include "../../includes/minishell.h"
 
+static int	add_heredoc_delim(t_cmd *cmd, char *delim)
+{
+	char	**new_delims;
+	int		i;
+
+	new_delims = malloc(sizeof(char *) * (cmd->heredoc_count + 1));
+	if (!new_delims)
+		return (-1);
+	i = 0;
+	while (i < cmd->heredoc_count)
+	{
+		new_delims[i] = cmd->heredoc_delims[i];
+		i++;
+	}
+	new_delims[cmd->heredoc_count] = ft_strdup(delim);
+	if (cmd->heredoc_delims)
+		free(cmd->heredoc_delims);
+	cmd->heredoc_delims = new_delims;
+	cmd->heredoc_count++;
+	return (0);
+}
+
 int	status_to_code(int status)
 {
 	if (WIFEXITED(status))
@@ -53,27 +75,45 @@ void	process_redir(t_cmd **cur, t_token *tok, t_token **toks)
 		*cur = create_cmd();
 	next = tok->next;
 	if (tok->type == T_IN_REDIR)
-		(*cur)->input_file = ft_strdup(next->value);
-	else if (tok->type == T_OUT_REDIR
-		|| tok->type == T_DOUT_REDIR)
 	{
-		(*cur)->append_mode
-			= (tok->type == T_DOUT_REDIR);
+		if ((*cur)->input_file)
+			free((*cur)->input_file);
+		(*cur)->input_file = ft_strdup(next->value);
+	}
+	else if (tok->type == T_OUT_REDIR || tok->type == T_DOUT_REDIR)
+	{
+		(*cur)->append_mode = (tok->type == T_DOUT_REDIR);
+		if ((*cur)->output_file)
+			free((*cur)->output_file);
 		(*cur)->output_file = ft_strdup(next->value);
 	}
 	else
-		(*cur)->heredoc_delim = ft_strdup(next->value);
+	{
+		add_heredoc_delim(*cur, next->value);
+	}
 	*toks = next->next;
 }
 
 void	free_cmd(t_cmd *cmd)
 {
+	int	i;
+
+	i = 0;
 	if (!cmd)
 		return ;
 	if (cmd->argv)
 		free_array(cmd->argv);
 	free(cmd->input_file);
 	free(cmd->output_file);
-	free(cmd->heredoc_delim);
+	if (cmd->heredoc_delims)
+	{
+		i = 0;
+		while (i < cmd->heredoc_count)
+		{
+			free(cmd->heredoc_delims[i]);
+			i++;
+		}
+		free(cmd->heredoc_delims);
+	}
 	free(cmd);
 }

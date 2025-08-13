@@ -75,13 +75,16 @@ void	error_fd_pipe(t_temp_pipeline *temp, int n)
 	free(temp->pids);
 }
 
-void	pipeline_cont(t_temp_pipeline *temp, int n)
+int	pipeline_cont(t_temp_pipeline *temp, int n)
 {
+	int status;
+
 	free_pipe_array(temp->pipes, n);
-	wait_pipeline_processes(temp->pids, n);
+	status = wait_pipeline_processes(temp->pids, n);
 	close_heredoc_fds(temp->heredoc_fds, n);
 	free(temp->heredoc_fds);
 	temp->heredoc_fds = NULL;
 	free(temp->pids);
 	temp->pids = NULL;
+	return (status);
 }

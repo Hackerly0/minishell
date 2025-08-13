@@ -63,7 +63,7 @@ int	builtin_cd(char **argv, t_env **env_list)
 	char	*oldpwd;
 
 	path = argv[1];
-	if (argv[2])
+	if (argv[1] != NULL && argv[2])
 	{
 		error_str("cd: too many arguments");
 		return (1);
