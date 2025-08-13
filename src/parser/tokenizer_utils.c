@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hassende <hassende@student.42amman.com>    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:55:25 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/07 12:35:44 by hassende         ###   ########.fr       */
+/*   Updated: 2025/08/11 18:04:37 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,21 @@ t_token_type	classify_token(char *s)
 	return (T_WORD);
 }
 
-void free_tokens(t_token **tokens)
+void	free_tokens(t_token **tokens)
 {
-    t_token *current = *tokens;
-    t_token *next;
+	t_token	*current;
+	t_token	*next;
 
-    while (current)
-    {
-        next = current->next;
-        if (current->value)
-            free(current->value);
-        free(current);
-        current = next;
-    }
-    *tokens = NULL;
+	current = *tokens;
+	while (current)
+	{
+		next = current->next;
+		if (current->value)
+			free(current->value);
+		free(current);
+		current = next;
+	}
+	*tokens = NULL;
 }
 
 t_token	*create_token(const char *val, t_token_type type, int in_quotes)

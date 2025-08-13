@@ -6,7 +6,7 @@
 /*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:50:47 by oalhoora          #+#    #+#             */
-/*   Updated: 2025/08/02 20:49:53 by oalhoora         ###   ########.fr       */
+/*   Updated: 2025/08/13 01:54:11 by oalhoora         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 	return (s);
 }
 
-int	pipe_error(t_token *cur)
+int	pipe_error(t_token *cur, t_data *data)
 {
 	char	*s;
 
@@ -46,39 +46,48 @@ int	pipe_error(t_token *cur)
 		s = ft_strdup("minishell: syntax error near unexpected token '|'\n");
 	write(2, s, ft_strlen(s));
 	free(s);
-	g_signal = 2;
+	data->exit_code = 2;
 	return (0);
 }
 
-int	print_syntax_error(char *value)
+int	print_syntax_error(char *value, t_data *data)
 {
 	char	*msg;
 
 	if (!ft_strncmp(value, "><", 2))
 		msg = ft_strjoin_three(
-				"minishell: syntax error near unexpected token `",
+				"minishell: syntax error near unexpected token '",
 				value + 1, "'\n");
 	else
 		msg = ft_strjoin_three(
-				"minishell: syntax error near unexpected token `",
+				"minishell: syntax error near unexpected token '",
 				value + 2, "'\n");
 	if (msg)
 	{
 		write(2, msg, ft_strlen(msg));
 		free(msg);
 	}
-	g_signal = 2;
+	data->exit_code = 2;
 	return (0);
 }
 
-int	missig_file(void)
+int	missing_file(t_data *data)
 {
 	char	*msg;
 
 	msg = ft_strdup(
-			"minishell: syntax error near unexpected token `newline'\n");
+			"minishell: syntax error near unexpected token 'newline'\n");
 	write(2, msg, ft_strlen(msg));
 	free(msg);
-	g_signal = 2;
+	data->exit_code = 2;
 	return (0);
+}
+
+int	is_dir(const char *path)
+{
+	struct stat	st;
+
+	if (!path || stat(path, &st) == -1)
+		return (0);
+	return (S_ISDIR(st.st_mode));
 }

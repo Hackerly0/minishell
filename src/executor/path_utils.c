@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   path_utils.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/11 23:59:00 by oalhoora          #+#    #+#             */
+/*   Updated: 2025/08/11 23:59:00 by oalhoora         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../includes/minishell.h"
 
-char	*get_path_env(char **envp)
+static char	*get_path_env(char **envp)
 {
 	int	i;
 
@@ -14,11 +26,10 @@ char	*get_path_env(char **envp)
 	return (NULL);
 }
 
-char	*search_paths(char *cmd, char *path_env)
+static char	*search_paths(char *cmd, char *path_env)
 {
 	char	**paths;
 	char	*full_path;
-	size_t	len;
 	int		i;
 
 	if (!path_env)
@@ -27,11 +38,9 @@ char	*search_paths(char *cmd, char *path_env)
 	i = -1;
 	while (paths[++i])
 	{
-		len = ft_strlen(paths[i]) + ft_strlen(cmd) + 2;
-		full_path = malloc(len);
+		full_path = ft_strjoin_three(paths[i], "/", cmd);
 		if (!full_path)
 			break ;
-		snprintf(full_path, len, "%s/%s", paths[i], cmd);
 		if (!access(full_path, X_OK))
 		{
 			free_array(paths);

@@ -12,40 +12,40 @@
 
 #include "../../includes/minishell.h"
 
-void error_str(char *msg)
+void	error_str(char *msg)
 {
-    if (msg)
-    {
-        write(STDERR_FILENO, "minishell: ", 11);
-        write(STDERR_FILENO, msg, strlen(msg));
-        write(STDERR_FILENO, "\n", 1);
-    }
+	if (msg)
+	{
+		write(STDERR_FILENO, "minishell: ", 11);
+		write(STDERR_FILENO, msg, ft_strlen(msg));
+		write(STDERR_FILENO, "\n", 1);
+	}
 }
 
-void error_cmd(char *cmd, char *msg)
+void	error_cmd(char *cmd, char *msg)
 {
-    write(STDERR_FILENO, "minishell: ", 11);
-    if (cmd)
-    {
-        write(STDERR_FILENO, cmd, strlen(cmd));
-        write(STDERR_FILENO, ": ", 2);
-    }
-    if (msg)
-        write(STDERR_FILENO, msg, strlen(msg));
-    write(STDERR_FILENO, "\n", 1);
+	write(STDERR_FILENO, "minishell: ", 11);
+	if (cmd)
+	{
+		write(STDERR_FILENO, cmd, ft_strlen(cmd));
+		write(STDERR_FILENO, ": ", 2);
+	}
+	if (msg)
+		write(STDERR_FILENO, msg, ft_strlen(msg));
+	write(STDERR_FILENO, "\n", 1);
 }
 
-void error_file(char *filename, char *msg)
+void	error_file(char *filename, char *msg)
 {
-    write(STDERR_FILENO, "minishell: ", 11);
-    if (filename)
-    {
-        write(STDERR_FILENO, filename, strlen(filename));
-        write(STDERR_FILENO, ": ", 2);
-    }
-    if (msg)
-        write(STDERR_FILENO, msg, strlen(msg));
-    else
-        write(STDERR_FILENO, strerror(errno), strlen(strerror(errno)));
-    write(STDERR_FILENO, "\n", 1);
+	write(STDERR_FILENO, "minishell: ", 11);
+	if (filename)
+	{
+		write(STDERR_FILENO, filename, ft_strlen(filename));
+		write(STDERR_FILENO, ": ", 2);
+	}
+	if (msg)
+		write(STDERR_FILENO, msg, ft_strlen(msg));
+	else
+		write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
+	write(STDERR_FILENO, "\n", 1);
 }

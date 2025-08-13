@@ -1,0 +1,5 @@
+Welcome to minishell!
+Type 'exit' to quit.
+minishell$ /bin/echo $USER$TESTNOTFOUND$HOME$WTF$PWD
+obada/home/obada/home/obada/42_Amman/finalllllllly/hello_gg/minishell
+minishell$ exit

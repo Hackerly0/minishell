@@ -1,0 +1,13 @@
+a
+includes
+Libft
+Makefile
+minishell
+output.txt
+readline_curses.supp
+README.md
+s
+src
+syntax_check.sh
+t
+test.sh

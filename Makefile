@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hassende <hassende@student.42amman.com>    +#+  +:+       +#+         #
+#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/11 00:00:00 by oalhoora          #+#    #+#              #
-#    Updated: 2025/08/07 12:25:06 by hassende         ###   ########.fr        #
+#    Updated: 2025/08/13 03:01:26 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,7 @@ LDFLAGS = -lreadline
 
 # Source files
 SRCS = src/main.c \
+	   src/main_utils.c \
 	   src/parser/tokenizer.c \
 	   src/parser/parser.c \
 	   src/parser/expander.c \
@@ -29,6 +30,7 @@ SRCS = src/main.c \
 	   src/parser/normal_behaviour_three.c \
 	   src/parser/utils.c \
 	   src/parser/expander_utils.c \
+	   src/parser/expander_helper.c \
        src/executor/executor.c \
        src/executor/cmd_parser.c \
 	   src/executor/cmd_parser_helper.c \
@@ -38,9 +40,24 @@ SRCS = src/main.c \
        src/executor/heredoc.c \
        src/executor/pipeline_utils.c \
        src/executor/single_cmd.c \
+	   src/executor/executor_helper_two.c \
+	   src/executor/executor_helper.c \
+	   src/executor/executor_utils.c \
+	   src/executor/heredoc_utils.c \
+	   src/executor/pipeline_setup.c \
+	   src/executor/heredoc_helper.c \
 	   src/builtins/builtins.c \
 	   src/builtins/errors.c \
-	   src/utils/helper_functions.c
+	   src/builtins/export.c \
+	   src/builtins/export_envp.c \
+	   src/builtins/export_validate.c \
+	   src/builtins/env_list_helper.c \
+	   src/builtins/builtin_exit.c \
+	   src/builtins/builtin_unset.c \
+	   src/builtins/cd_builtin.c \
+	   src/builtins/echo_builtin.c \
+	   src/builtins/env_creation.c
+
 
 # Object files
 OBJS = $(SRCS:.c=.o)

@@ -24,7 +24,7 @@ static char	*get_cmd_name(char *cmd_path)
 	return (cmd_name);
 }
 
-static int	exec_builtin_single(t_cmd *cmd, char **envp)
+static int	exec_builtin_single(t_cmd *cmd, t_env **envp)
 {
 	char	*original_argv0;
 	char	*cmd_name;
@@ -33,12 +33,12 @@ static int	exec_builtin_single(t_cmd *cmd, char **envp)
 	cmd_name = get_cmd_name(cmd->argv[0]);
 	original_argv0 = cmd->argv[0];
 	cmd->argv[0] = cmd_name;
-	exit_code = execute_builtin(cmd->argv, envp);
+	exit_code = execute_builtin(cmd->argv, envp, cmd);
 	cmd->argv[0] = original_argv0;
 	return (exit_code);
 }
 
-static int	handle_builtin_single(t_cmd *cmd_list, char **envp)
+static int	handle_builtin_single(t_cmd *cmd_list, t_env **envp, t_data *data)
 {
 	int	stdin_backup;
 	int	stdout_backup;
@@ -46,7 +46,7 @@ static int	handle_builtin_single(t_cmd *cmd_list, char **envp)
 
 	stdin_backup = dup(STDIN_FILENO);
 	stdout_backup = dup(STDOUT_FILENO);
-	if (setup_single_cmd_input(cmd_list) == -1
+	if (setup_single_cmd_input(cmd_list, data) == -1
 		|| setup_output_redirection(cmd_list) == -1)
 	{
 		dup2(stdin_backup, STDIN_FILENO);
@@ -63,28 +63,31 @@ static int	handle_builtin_single(t_cmd *cmd_list, char **envp)
 	return (exit_code);
 }
 
-int	single_command_handler(t_cmd *cmd_list, char **envp)
+int	single_command_handler(t_cmd *cmd_list, t_env **env_list, t_data *data)
 {
 	pid_t	pid;
 	int		status;
-	char	*cmd_name;
-	int		exit_code;
 
-	if (cmd_list->argv[0])
-	{
-		cmd_name = get_cmd_name(cmd_list->argv[0]);
-		if (is_builtin(cmd_name))
-			return (handle_builtin_single(cmd_list, envp));
-	}
+	if (cmd_list->argv && cmd_list->argv[0]
+		&& is_builtin(cmd_list->argv[0]))
+		return (handle_builtin_single(cmd_list, env_list, data));
 	pid = fork();
+	if (pid < 0)
+		return (perror("fork"), 1);
 	if (pid == 0)
-	{   
-        setup_single_cmd_input(cmd_list);
-        setup_output_redirection(cmd_list);
-        exit_code = execute_single_command(cmd_list, envp);
-        free_cmd_list(cmd_list);
-        exit(exit_code);
+	{
+		restore_default_signals();
+		if (setup_single_cmd_input(cmd_list, data) == -1
+			|| setup_output_redirection(cmd_list) == -1)
+		{
+			free_data(data);
+			exit(1);
+		}
+		status = execute_single_command(cmd_list, env_list);
+		free_data(data);
+		exit(status);
 	}
-	waitpid(pid, &status, 0);
-	return (WEXITSTATUS(status));
+	if (waitpid(pid, &status, 0) == -1)
+		return (perror("waitpid"), 1);
+	return (status_to_code(status));
 }

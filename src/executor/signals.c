@@ -1,44 +1,60 @@
-// signals.c
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signals.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oalhoora <oalhoora@student.42amman.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/11 22:01:37 by oalhoora          #+#    #+#             */
+/*   Updated: 2025/08/11 22:01:37 by oalhoora         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../includes/minishell.h"
-#include <readline/readline.h>
-#include <unistd.h>
 
-//extern volatile sig_atomic_t g_signal;
-
-/* main prompt handler you already have */
-void    signal_handler(int sig)
+static void	sigint_prompt(int sig)
 {
-    g_signal = sig;
-    if (sig == SIGINT)
-    {
-        write(1, "\n", 1);
-        rl_replace_line("", 0);
-        rl_on_new_line();
-        rl_done = 1;
-    }
+	(void)sig;
+	g_signal = SIGINT;
+	write(1, "\n", 1);
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
+	rl_done = 1;
 }
 
-/* NEW: heredoc-specific SIGINT */
-static void hd_sigint(int sig)
+static void	sigint_heredoc(int sig)
 {
-    (void)sig;
-    g_signal = SIGINT;
-    write(1, "\n", 1);
-    /* make readline("> ") return immediately */
-    rl_replace_line("", 0);
-    rl_on_new_line();
-    close(STDIN_FILENO);
+	(void)sig;
+	g_signal = SIGINT;
+	write(1, "\n", 1);
+	close(STDIN_FILENO);
 }
 
-/* expose two small helpers to switch modes */
-void    setup_signals(void)
+void	setup_signals(void)
 {
-    signal(SIGINT, signal_handler);
-    signal(SIGQUIT, SIG_IGN);
+	struct sigaction	sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = sigint_prompt;
+	sigaction(SIGINT, &sa, NULL);
+	signal(SIGQUIT, SIG_IGN);
 }
 
-void    setup_hd_signals(void)
+void	setup_hd_signals(void)
 {
-    signal(SIGINT, hd_sigint);
-    signal(SIGQUIT, SIG_IGN);
+	struct sigaction	sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = sigint_heredoc;
+	sigaction(SIGINT, &sa, NULL);
+	signal(SIGQUIT, SIG_IGN);
+}
+
+void	restore_default_signals(void)
+{
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 }

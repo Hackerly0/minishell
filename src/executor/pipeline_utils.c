@@ -12,27 +12,6 @@
 
 #include "../../includes/minishell.h"
 
-void	setup_pipeline_input(t_cmd *cur, int i, int **pipes, int *heredoc_fds)
-{
-    if (heredoc_fds && heredoc_fds[i] >= 0)        // <- guard pointer
-    {
-        dup2(heredoc_fds[i], STDIN_FILENO);
-        close(heredoc_fds[i]);
-    }
-    else if (cur->input_file)
-        setup_input_redirection(cur);
-    else if (i > 0)
-        dup2(pipes[i - 1][0], STDIN_FILENO);
-}
-
-void	setup_pipeline_output(t_cmd *cur, int i, int **pipes, int n)
-{
-	if (cur->output_file)
-		setup_output_redirection(cur);
-	else if (i < n - 1)
-		dup2(pipes[i][1], STDOUT_FILENO);
-}
-
 void	close_all_pipes(int **pipes, int n)
 {
 	int	j;
@@ -80,32 +59,32 @@ void	free_pipe_array(int **pipes, int n)
 	free(pipes);
 }
 
-void    close_heredoc_fds(int *fds, int n)
+void	close_heredoc_fds(int *fds, int n)
 {
-    int i;
+	int	i;
 
-    if (!fds)
-        return ;
-    i = 0;
-    while (i < n)
-    {
-        if (fds[i] >= 0)
-            close(fds[i]);
-        i++;
-    }
+	if (!fds)
+		return ;
+	i = 0;
+	while (i < n)
+	{
+		if (fds[i] >= 0)
+			close(fds[i]);
+		i++;
+	}
 }
 
-void    close_other_heredoc_fds(int *fds, int n, int keep)
+void	close_other_heredoc_fds(int *fds, int n, int keep)
 {
-    int i;
+	int	i;
 
-    if (!fds)
-        return ;
-    i = 0;
-    while (i < n)
-    {
-        if (i != keep && fds[i] >= 0)
-            close(fds[i]);
-        i++;
-    }
+	if (!fds)
+		return ;
+	i = 0;
+	while (i < n)
+	{
+		if (i != keep && fds[i] >= 0)
+			close(fds[i]);
+		i++;
+	}
 }
