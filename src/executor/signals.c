@@ -53,7 +53,7 @@ void	setup_hd_signals(void)
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	restore_default_signals(void)
+void	setup_child_signals(void)
 {
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);

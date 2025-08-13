@@ -39,25 +39,25 @@ void	remove_backslash(char **cmd_name)
 	(*cmd_name)[j - 1] = '\0';
 }
 
-int builtin_case(char **cmd, char **cmd_name, char **envp)
+int	builtin_case(char **cmd, char **cmd_name, char **envp)
 {
-    if (ft_strrchr(*cmd, '/'))
-    {
-        *cmd_name = ft_strdup(ft_strrchr(*cmd, '/'));
-        remove_backslash(cmd_name);
-        free(*cmd);
-        *cmd = ft_strdup(*cmd_name);
-    }
-    else
-        *cmd_name = ft_strdup(*cmd);
-    if (!*cmd)
-    {
-        free(*cmd_name);
-        free_envp(envp);
-        perror("malloc failure");
-        return (1);
-    }
-    return (0);
+	if (ft_strrchr(*cmd, '/'))
+	{
+		*cmd_name = ft_strdup(ft_strrchr(*cmd, '/'));
+		remove_backslash(cmd_name);
+		free(*cmd);
+		*cmd = ft_strdup(*cmd_name);
+	}
+	else
+		*cmd_name = ft_strdup(*cmd);
+	if (!*cmd)
+	{
+		free(*cmd_name);
+		free_envp(envp);
+		perror("malloc failure");
+		return (1);
+	}
+	return (0);
 }
 
 int	cmd_not_found(t_cmd *cmd, char **cmd_path, char **envp)

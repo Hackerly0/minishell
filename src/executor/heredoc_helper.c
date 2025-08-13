@@ -12,6 +12,18 @@
 
 #include "../../includes/minishell.h"
 
+void	free_cmd_list(t_cmd *cmd_list)
+{
+	t_cmd	*next;
+
+	while (cmd_list)
+	{
+		next = cmd_list->next;
+		free_cmd(cmd_list);
+		cmd_list = next;
+	}
+}
+
 void	free_data(t_data *data)
 {
 	if (data)

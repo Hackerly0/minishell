@@ -63,31 +63,37 @@ static int	handle_builtin_single(t_cmd *cmd_list, t_env **envp, t_data *data)
 	return (exit_code);
 }
 
+void	free_exit(t_data *data, int exit_code)
+{
+	free_data(data);
+	exit(exit_code);
+}
+
 int	single_command_handler(t_cmd *cmd_list, t_env **env_list, t_data *data)
 {
 	pid_t	pid;
 	int		status;
 
-	if (cmd_list->argv && cmd_list->argv[0]
-		&& is_builtin(cmd_list->argv[0]))
+	if (cmd_list->argv && cmd_list->argv[0] && is_builtin(cmd_list->argv[0]))
 		return (handle_builtin_single(cmd_list, env_list, data));
 	pid = fork();
 	if (pid < 0)
-		return (perror("fork"), 1);
+	{
+		perror("fork");
+		return (1);
+	}
 	if (pid == 0)
 	{
-		restore_default_signals();
+		setup_child_signals();
 		if (setup_single_cmd_input(cmd_list, data) == -1
 			|| setup_output_redirection(cmd_list) == -1)
-		{
-			free_data(data);
-			exit(1);
-		}
-		status = execute_single_command(cmd_list, env_list);
-		free_data(data);
-		exit(status);
+			free_exit(data, 1);
+		free_exit(data, execute_single_command(cmd_list, env_list));
 	}
 	if (waitpid(pid, &status, 0) == -1)
-		return (perror("waitpid"), 1);
+	{
+		perror("waitpid");
+		return (1);
+	}
 	return (status_to_code(status));
 }

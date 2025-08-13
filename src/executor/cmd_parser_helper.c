@@ -43,18 +43,6 @@ int	status_to_code(int status)
 	return (1);
 }
 
-void	free_cmd_list(t_cmd *cmd_list)
-{
-	t_cmd	*next;
-
-	while (cmd_list)
-	{
-		next = cmd_list->next;
-		free_cmd(cmd_list);
-		cmd_list = next;
-	}
-}
-
 void	finalize_cmd(t_cmd *cur, t_cmd **head, t_cmd **tail, int argc)
 {
 	if (!cur)

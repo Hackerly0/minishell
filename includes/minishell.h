@@ -30,6 +30,7 @@
 
 # define Q_DQUOT 1
 # define Q_SQUOT 2
+# define _XOPEN_SOURCE 700
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -223,7 +224,7 @@ int				hd_restore_stdin(int saved);
 int				hd_make_pipe(int pipefd[2]);
 void			restore_default_signals(void);
 int				status_to_code(int status);
-
+void			setup_child_signals(void);
 /* parser functions */
 
 t_token			*tokenize(char *line);

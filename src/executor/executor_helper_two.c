@@ -77,7 +77,7 @@ void	error_fd_pipe(t_temp_pipeline *temp, int n)
 
 int	pipeline_cont(t_temp_pipeline *temp, int n)
 {
-	int status;
+	int	status;
 
 	free_pipe_array(temp->pipes, n);
 	status = wait_pipeline_processes(temp->pids, n);

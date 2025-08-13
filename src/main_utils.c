@@ -66,6 +66,7 @@ int	sig_and_checks(char **line, t_data *data)
 	if (g_signal == SIGINT)
 	{
 		g_signal = 0;
+		data->exit_code = 128 + SIGINT;
 		free(*line);
 		return (0);
 	}

@@ -80,15 +80,24 @@ int	create_heredoc_pipe(const char *delim, int *out_fd, t_data *data)
 
 static int	hd_assign_fd_for_cmd(t_cmd *c, int *dst, t_data *data)
 {
+	int	i;
+
+	i = 0;
 	if (!c || c->heredoc_count == 0)
 	{
 		*dst = -1;
 		return (0);
 	}
-	if (create_heredoc_pipe(c->heredoc_delims[0], dst, data) == -1)
+	while (i < c->heredoc_count && c->heredoc_delims[i] != NULL)
 	{
-		*dst = -1;
-		return (-1);
+		if (create_heredoc_pipe(c->heredoc_delims[i], dst, data) == -1)
+		{
+			*dst = -1;
+			return (-1);
+		}
+		i++;
+		if (i != c->heredoc_count)
+			close(*dst);
 	}
 	return (0);
 }

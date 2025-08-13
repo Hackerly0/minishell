@@ -99,7 +99,7 @@ int	builtin_exit(char **argv, t_env **env_list, t_cmd *cmd)
 			ft_putstr_fd("minishell: exit: ", STDERR_FILENO);
 			ft_putstr_fd(argv[1], STDERR_FILENO);
 			ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
-			cleanup_and_exit(255, env_list, cmd);
+			cleanup_and_exit(2, env_list, cmd);
 		}
 		if (argv[2])
 		{
